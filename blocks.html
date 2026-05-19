@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>ЖК Каспий — Выбор блока</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #071425;
+      font-family: 'Inter', system-ui, sans-serif;
+      touch-action: manipulation;
+    }
+
+    body {
+      color: #fff;
+    }
+
+    .page {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #071425;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .blur-bg {
+      position: fixed;
+      inset: -54px;
+      z-index: 0;
+      background-image:
+        linear-gradient(
+          rgba(7, 20, 37, 0.58),
+          rgba(7, 20, 37, 0.72)
+        ),
+        url("./bloki.png");
+      background-size: cover;
+      background-position: center;
+      filter: blur(26px) saturate(0.92) brightness(0.72);
+      transform: scale(1.22);
+      pointer-events: none;
+    }
+
+    .clear-map {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      transform-origin: center center;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .focus-dim {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 2;
+      transition: opacity 0.22s ease;
+      background: rgba(3, 10, 22, 0.32);
+    }
+
+    body.has-focus .focus-dim {
+      opacity: 1;
+    }
+
+    .blocks-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      transform-origin: center center;
+    }
+
+    .block-shape {
+      fill: transparent;
+      stroke: transparent;
+      stroke-width: 0;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .active-restore {
+      fill: url(#bgPattern);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    .active-glow {
+      fill: url(#hoverDepth);
+      filter: url(#insideGlow);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s ease, filter 0.18s ease;
+    }
+
+    body.has-focus .active-restore,
+    body.has-focus .active-glow {
+      opacity: 1;
+    }
+
+    .active-glow.pressed {
+      fill: url(#pressedDepth);
+      filter: url(#pressedGlow);
+      opacity: 0.85;
+    }
+
+    .top-back {
+      position: fixed;
+      top: 22px;
+      left: 24px;
+      z-index: 20;
+      color: rgba(232, 203, 145, 0.95);
+      text-decoration: none;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      padding: 10px 14px;
+      border: 1px solid rgba(232, 203, 145, 0.25);
+      border-radius: 999px;
+      background: rgba(5, 14, 28, 0.35);
+      backdrop-filter: blur(10px);
+      transition: 0.25s ease;
+    }
+
+    .top-back:hover {
+      background: rgba(232, 203, 145, 0.13);
+      border-color: rgba(232, 203, 145, 0.55);
+      box-shadow: 0 0 22px rgba(209, 169, 92, 0.18);
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    .hint {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      z-index: 20;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 15px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(5, 14, 28, 0.42);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      white-space: nowrap;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.22);
+    }
+
+    .orientation-top,
+    .orientation-bottom {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 18;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: rgba(232, 217, 194, 0.98);
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-shadow:
+        0 3px 18px rgba(0,0,0,0.78),
+        0 0 22px rgba(232,217,194,0.16);
+      white-space: nowrap;
+    }
+
+    .orientation-top {
+      top: 22vh;
+    }
+
+    .orientation-bottom {
+      top: 78vh;
+      bottom: auto;
+    }
+
+    .orientation-line {
+      width: 118px;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        rgba(232,217,194,0),
+        rgba(232,217,194,0.92),
+        rgba(232,217,194,0)
+      );
+    }
+
+    .compass {
+      position: fixed;
+      right: 28px;
+      top: 92px;
+      z-index: 18;
+      width: 92px;
+      height: 92px;
+      pointer-events: none;
+      border-radius: 999px;
+      background: rgba(5, 14, 28, 0.28);
+      border: 1px solid rgba(232, 217, 194, 0.18);
+      backdrop-filter: blur(12px);
+      box-shadow:
+        0 18px 45px rgba(0,0,0,0.20),
+        inset 0 0 22px rgba(232,217,194,0.025);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .compass-inner {
+      position: relative;
+      width: 62px;
+      height: 62px;
+      border-radius: 999px;
+      border: 1px solid rgba(232, 217, 194, 0.26);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .compass-inner::before {
+      content: '';
+      position: absolute;
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(
+        to bottom,
+        rgba(232,217,194,0.92),
+        rgba(232,217,194,0.12)
+      );
+    }
+
+    .compass-inner::after {
+      content: '';
+      position: absolute;
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        rgba(232,217,194,0.12),
+        rgba(232,217,194,0.55),
+        rgba(232,217,194,0.12)
+      );
+    }
+
+    .compass-n {
+      position: absolute;
+      top: -17px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: rgba(232,217,194,0.9);
+    }
+
+    .compass-label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      color: rgba(232,217,194,0.68);
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      html,
+      body {
+        overflow: hidden;
+        background: #071425;
+      }
+
+      .top-back {
+        display: none;
+      }
+
+      .mobile-nav {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 16px;
+        border-radius: 22px;
+        background: rgba(7, 20, 37, 0.74);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(232, 217, 194, 0.16);
+        box-shadow:
+          0 18px 50px rgba(0,0,0,0.28),
+          inset 0 0 22px rgba(232,217,194,0.025);
+      }
+
+      .mobile-nav a {
+        color: rgba(232, 217, 194, 0.96);
+        text-decoration: none;
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.13em;
+      }
+
+      .blur-bg {
+        background-image:
+          linear-gradient(
+            rgba(7, 20, 37, 0.50),
+            rgba(7, 20, 37, 0.66)
+          ),
+          url("./bloki.png");
+        filter: blur(26px) saturate(0.94) brightness(0.76);
+        transform: scale(1.28);
+      }
+
+      .clear-map,
+      .blocks-layer {
+        transform: scale(1.74);
+      }
+
+      .clear-map {
+        -webkit-mask-image:
+          linear-gradient(to right, transparent 0%, rgba(0,0,0,0.18) 8%, black 24%, black 76%, rgba(0,0,0,0.18) 92%, transparent 100%),
+          linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.20) 8%, black 23%, black 77%, rgba(0,0,0,0.20) 92%, transparent 100%);
+        -webkit-mask-composite: source-in;
+        mask-image:
+          linear-gradient(to right, transparent 0%, rgba(0,0,0,0.18) 8%, black 24%, black 76%, rgba(0,0,0,0.18) 92%, transparent 100%),
+          linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.20) 8%, black 23%, black 77%, rgba(0,0,0,0.20) 92%, transparent 100%);
+        mask-composite: intersect;
+      }
+
+      .page svg,
+      .blocks-layer {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .orientation-top {
+        font-size: 18px;
+        letter-spacing: 0.10em;
+        gap: 10px;
+      }
+
+      .orientation-bottom {
+        bottom: auto;
+        font-size: 18px;
+        letter-spacing: 0.10em;
+        gap: 10px;
+      }
+
+      .orientation-line {
+        width: 56px;
+      }
+
+      .compass {
+        right: 14px;
+        top: 66px;
+        width: 54px;
+        height: 54px;
+        opacity: 0.92;
+      }
+
+      .compass-inner {
+        width: 34px;
+        height: 34px;
+      }
+
+      .compass-inner::before {
+        height: 27px;
+      }
+
+      .compass-inner::after {
+        width: 27px;
+      }
+
+      .compass-n {
+        top: -13px;
+        font-size: 8px;
+      }
+
+      .compass-label {
+        display: none;
+      }
+
+      .hint {
+        bottom: 18px;
+        font-size: 14px;
+        padding: 10px 18px;
+        max-width: calc(100vw - 24px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background: rgba(5, 14, 28, 0.55);
+        border: 1px solid rgba(232,217,194,0.16);
+        color: rgba(255,255,255,0.88);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .blur-bg {
+        background-image:
+          linear-gradient(
+            rgba(7, 20, 37, 0.52),
+            rgba(7, 20, 37, 0.68)
+          ),
+          url("./bloki.png");
+        filter: blur(27px) saturate(0.92) brightness(0.74);
+        transform: scale(1.34);
+      }
+
+      .clear-map,
+      .blocks-layer {
+        transform: scale(1.96);
+      }
+
+      .clear-map {
+        -webkit-mask-image:
+          linear-gradient(to right, transparent 0%, rgba(0,0,0,0.16) 7%, black 24%, black 76%, rgba(0,0,0,0.16) 93%, transparent 100%),
+          linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.18) 7%, black 24%, black 76%, rgba(0,0,0,0.18) 93%, transparent 100%);
+        -webkit-mask-composite: source-in;
+        mask-image:
+          linear-gradient(to right, transparent 0%, rgba(0,0,0,0.16) 7%, black 24%, black 76%, rgba(0,0,0,0.16) 93%, transparent 100%),
+          linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.18) 7%, black 24%, black 76%, rgba(0,0,0,0.18) 93%, transparent 100%);
+        mask-composite: intersect;
+      }
+
+      .orientation-top {
+        font-size: 16px;
+        gap: 8px;
+      }
+
+      .orientation-bottom {
+        bottom: auto;
+        font-size: 16px;
+        gap: 8px;
+      }
+
+      .orientation-line {
+        width: 38px;
+      }
+
+      .hint {
+        bottom: 14px;
+        font-size: 13px;
+        padding: 9px 16px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .clear-map,
+      .blocks-layer {
+        transform: scale(2.04);
+      }
+
+      .orientation-top {
+        font-size: 15px;
+      }
+
+      .orientation-bottom {
+        bottom: auto;
+        font-size: 15px;
+      }
+
+      .orientation-line {
+        width: 24px;
+      }
+
+      .hint {
+        bottom: 12px;
+        font-size: 12px;
+        padding: 8px 14px;
+      }
+    }
+
+    .unavail-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(3, 10, 22, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .unavail-overlay.active {
+      display: flex;
+    }
+
+    .unavail-box {
+      background: rgba(7, 20, 37, 0.94);
+      border: 1px solid rgba(232, 217, 194, 0.22);
+      border-radius: 20px;
+      padding: 40px 44px;
+      max-width: 400px;
+      width: calc(100% - 48px);
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    }
+
+    .unavail-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: rgba(232, 217, 194, 0.96);
+      margin: 0 0 12px;
+      letter-spacing: 0.03em;
+    }
+
+    .unavail-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.60);
+      line-height: 1.65;
+      margin: 0 0 28px;
+    }
+
+    .unavail-close {
+      display: inline-block;
+      padding: 10px 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(232, 217, 194, 0.35);
+      color: rgba(232, 217, 194, 0.90);
+      font-size: 14px;
+      font-family: inherit;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.22s ease, border-color 0.22s ease;
+    }
+
+    .unavail-close:hover {
+      background: rgba(232, 217, 194, 0.12);
+      border-color: rgba(232, 217, 194, 0.60);
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="mobile-nav">
+    <a href="index.html">Главная</a>
+    <a href="index.html#renders">Галерея</a>
+  </nav>
+
+  <a class="top-back" href="index.html">← На главную</a>
+
+  <div class="orientation-top">
+    <span class="orientation-line"></span>
+    <span>Сторона моря</span>
+    <span class="orientation-line"></span>
+  </div>
+
+  <div class="orientation-bottom">
+    <span class="orientation-line"></span>
+    <span>Сторона гор</span>
+    <span class="orientation-line"></span>
+  </div>
+
+  <div class="compass">
+    <div class="compass-inner">
+      <div class="compass-n">N</div>
+      <div class="compass-label">Ориентир</div>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="blur-bg"></div>
+
+    <svg id="bgSvg" class="clear-map" viewBox="0 0 1536 864" preserveAspectRatio="xMidYMid slice">
+      <image
+        href="./bloki.png"
+        x="0"
+        y="0"
+        width="1536"
+        height="864"
+        preserveAspectRatio="xMidYMid slice"
+      />
+    </svg>
+  </div>
+
+  <div class="focus-dim"></div>
+
+  <svg id="blocksSvg" class="blocks-layer" viewBox="0 0 1536 864" preserveAspectRatio="xMidYMid slice">
+
+    <defs>
+      <pattern id="bgPattern" patternUnits="userSpaceOnUse" x="0" y="0" width="1536" height="864">
+        <image
+          href="./bloki.png"
+          x="0"
+          y="0"
+          width="1536"
+          height="864"
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </pattern>
+
+      <linearGradient id="hoverDepth" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="rgba(255, 248, 226, 0.62)" />
+        <stop offset="30%" stop-color="rgba(236, 208, 150, 0.50)" />
+        <stop offset="62%" stop-color="rgba(196, 150, 82, 0.27)" />
+        <stop offset="100%" stop-color="rgba(38, 20, 8, 0.08)" />
+      </linearGradient>
+
+      <linearGradient id="pressedDepth" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="rgba(246, 225, 185, 0.12)" />
+        <stop offset="30%" stop-color="rgba(132, 87, 42, 0.22)" />
+        <stop offset="62%" stop-color="rgba(20, 10, 4, 0.38)" />
+        <stop offset="100%" stop-color="rgba(0, 0, 0, 0.56)" />
+      </linearGradient>
+
+      <filter id="insideGlow" x="0%" y="0%" width="100%" height="100%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="0.75" result="blur" />
+        <feColorMatrix
+          in="blur"
+          type="matrix"
+          values="
+            1 0 0 0 0.96
+            0 1 0 0 0.76
+            0 0 1 0 0.45
+            0 0 0 0.55 0
+          "
+          result="champagneGlow"
+        />
+        <feMerge>
+          <feMergeNode in="champagneGlow"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+
+      <filter id="pressedGlow" x="0%" y="0%" width="100%" height="100%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="0.3" result="softPress" />
+        <feColorMatrix
+          in="softPress"
+          type="matrix"
+          values="
+            0 0 0 0 0.04
+            0 0 0 0 0.025
+            0 0 0 0 0.01
+            0 0 0 0.34 0
+          "
+          result="darkPress"
+        />
+        <feMerge>
+          <feMergeNode in="darkPress"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    <path id="activeRestore" class="active-restore" d="" />
+    <path id="activeGlow" class="active-glow" d="" />
+
+    <path class="block-shape" data-block="4" onclick="go(4)" d="M 532 277 L 620 277 Q 627 277 627 284 L 627 329 Q 627 336 620 336 L 591 336 L 591 346 Q 591 353 584 353 L 532 353 Q 525 353 525 346 L 525 284 Q 525 277 532 277 Z" />
+    <path class="block-shape" data-block="3" onclick="go(3)" d="M 532 360 L 585 360 Q 593 360 593 368 L 593 455 Q 593 463 585 463 L 532 463 Q 524 463 524 455 L 524 368 Q 524 360 532 360 Z" />
+    <path class="block-shape" data-block="2" onclick="go(2)" d="M 532 470 L 586 470 Q 594 470 594 478 L 594 566 Q 594 574 586 574 L 532 574 Q 524 574 524 566 L 524 478 Q 524 470 532 470 Z" />
+    <path class="block-shape" data-block="1" onclick="go(1)" d="M 533 582.4 L 585 582.4 Q 593 582.4 593 590.4 L 593 599.5 L 619.6 599.5 Q 631.1 599.5 631.1 608 L 631.1 652 Q 631.1 660 623.1 660 L 533 660 Q 525 660 525 652 L 525 590.4 Q 525 582.4 533 582.4 Z" />
+    <path class="block-shape" data-block="5" onclick="go(5)" d="M 644 260 L 715 260 Q 724 260 724 269 L 724 338 Q 724 347 715 347 L 644 347 Q 635 347 635 338 L 635 269 Q 635 260 644 260 Z" />
+    <path class="block-shape" data-block="6" onclick="go(6)" d="M 741 274 L 800 274 Q 809 274 809 283 L 809 387 Q 809 396 800 396 L 759 396 Q 750 396 750 387 L 750 333 L 742 333 Q 732 333 732 324 L 732 283 Q 732 274 741 274 Z" />
+    <path class="block-shape" data-block="7" onclick="go(7)" d="M 742 403 L 809 403 Q 818 403 818 412 L 818 474 Q 818 483 809 483 L 742 483 Q 733 483 733 474 L 733 412 Q 733 403 742 403 Z" />
+    <path class="block-shape" data-block="8" onclick="go(8)" d="M 748.5 489.5 L 800.5 489.5 Q 808.5 489.5 808.5 497.5 L 808.5 562 Q 808.5 570 800.5 570 L 748.5 570 Q 740.5 570 740.5 562 L 740.5 497.5 Q 740.5 489.5 748.5 489.5 Z" />
+    <path class="block-shape" data-block="9" onclick="go(9)" d="M 746.5 578 L 800 578 Q 808 578 808 586 L 808 652 Q 808 660 800 660 L 748.5 660 Q 740.5 660 740.5 652 L 740.5 614 L 736 614 Q 731 614 731 609 L 731 608 Q 731 601 737 601 L 740.5 601 L 740.5 587 Q 740.5 578 746.5 578 Z" />
+    <path class="block-shape" data-block="10" onclick="go(10)" d="M 873.5 270.5 L 962 270.5 Q 968 270.5 968 269 Q 968 261 975 261 L 1002.5 261 Q 1011.5 261 1011.5 270.5 L 1011.5 337 Q 1011.5 346 1002.5 346 L 956 346 Q 947 346 947 337 L 947 331 Q 947 327 943 327 L 882 327 Q 872 327 871 318 L 871 285 Q 870.5 270 877 270.5 Z" />
+    <path class="block-shape" data-block="11" onclick="go(11)" d="M 946.7 354.4 L 1014.5 354.4 Q 1023.5 354.4 1023.5 363.4 L 1023.5 445 Q 1023.5 454 1014.5 454 L 946.7 454 Q 937.7 454 937.7 445 L 937.7 363.4 Q 937.7 354.4 946.7 354.4 Z" />
+    <path class="block-shape" data-block="12" onclick="go(12)" d="M 953 462.7 L 1004.4 462.7 Q 1012.4 462.7 1012.4 470.7 L 1012.4 560 Q 1012.4 568 1004.4 568 L 953 568 Q 945 568 945 560 L 945 470.7 Q 945 462.7 953 462.7 Z" />
+    <path class="block-shape" data-block="13" onclick="go(13)" d="M 878 593 L 937.6 593 Q 945.6 593 945.6 584 L 945.6 578 Q 945.6 574 949.6 574 L 1005 574 Q 1013 574 1013 582 L 1013 650 Q 1013 658 1005 658 L 976 658 C 971 658 968 655 968 650 L 968 648 C 968 647 965 647 960 647 L 878 647 Q 870 647 870 639 L 870 601 Q 870 593 878 593 Z" />
+
+  </svg>
+
+  <div class="hint">Нажмите на нужный блок</div>
+
+  <div id="unavailOverlay" class="unavail-overlay" onclick="closeUnavail(event)">
+    <div class="unavail-box">
+      <p class="unavail-title">Блок временно недоступен</p>
+      <p class="unavail-text">По техническим причинам планировки данного блока временно недоступны. Скоро мы добавим информацию.</p>
+      <button class="unavail-close" onclick="closeUnavail()">Понятно</button>
+    </div>
+  </div>
+
+  <script>
+    function go(num) {
+      if (num === 6 || num === 9 || num === 10) {
+        document.getElementById('unavailOverlay').classList.add('active');
+        return;
+      }
+      window.location.href = `plans.html?block=${num}`;
+    }
+
+    function closeUnavail(e) {
+      if (!e || e.target === document.getElementById('unavailOverlay')) {
+        document.getElementById('unavailOverlay').classList.remove('active');
+      }
+    }
+
+    const blocks = document.querySelectorAll('.block-shape');
+    const activeRestore = document.getElementById('activeRestore');
+    const activeGlow = document.getElementById('activeGlow');
+
+    blocks.forEach(block => {
+      block.addEventListener('mouseenter', (event) => {
+        const d = event.target.getAttribute('d');
+        activeRestore.setAttribute('d', d);
+        activeGlow.setAttribute('d', d);
+        document.body.classList.add('has-focus');
+      });
+
+      block.addEventListener('mousedown', () => {
+        activeGlow.classList.add('pressed');
+      });
+
+      block.addEventListener('mouseup', () => {
+        activeGlow.classList.remove('pressed');
+      });
+
+      block.addEventListener('mouseleave', () => {
+        document.body.classList.remove('has-focus');
+        activeGlow.classList.remove('pressed');
+        activeRestore.setAttribute('d', '');
+        activeGlow.setAttribute('d', '');
+      });
+
+      block.addEventListener('touchstart', (event) => {
+        const d = event.target.getAttribute('d');
+        activeRestore.setAttribute('d', d);
+        activeGlow.setAttribute('d', d);
+        activeGlow.classList.add('pressed');
+        document.body.classList.add('has-focus');
+      }, { passive: true });
+
+      block.addEventListener('touchend', () => {
+        activeGlow.classList.remove('pressed');
+      }, { passive: true });
+    });
+
+    function adaptSvgForDevice() {
+      const bgSvg = document.getElementById('bgSvg');
+      const blocksSvg = document.getElementById('blocksSvg');
+
+      if (window.innerWidth <= 900) {
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        blocksSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      } else {
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+        blocksSvg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      }
+
+      positionOrientationLabels();
+    }
+
+    function positionOrientationLabels() {
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const vbW = 1536, vbH = 864;
+      const isMobile = W <= 900;
+
+      // SVG rendering scale
+      const svgScale = isMobile
+        ? Math.min(W / vbW, H / vbH)   // meet: fit inside
+        : Math.max(W / vbW, H / vbH);  // slice: fill viewport
+
+      // Vertical offset of SVG in viewport
+      const offsetY = (H - vbH * svgScale) / 2;
+
+      // CSS transform scale applied to .blocks-layer on mobile
+      let cssScale = 1;
+      if (W <= 390) cssScale = 2.04;
+      else if (W <= 520) cssScale = 1.96;
+      else if (W <= 900) cssScale = 1.74;
+
+      // Convert SVG y-coordinate → screen y (accounts for CSS scale from viewport center)
+      const cy = H / 2;
+      const toScreen = svgY => {
+        const base = svgY * svgScale + offsetY;
+        return cy + (base - cy) * cssScale;
+      };
+
+      // SVG y positions:
+      // Top blocks start at y≈260 → place label at y=185 (above)
+      // Bottom blocks end at y≈660 → place label at y=708 (below)
+      const topEl = document.querySelector('.orientation-top');
+      const botEl = document.querySelector('.orientation-bottom');
+
+      if (topEl) {
+        topEl.style.top = Math.round(toScreen(185)) + 'px';
+        topEl.style.bottom = 'auto';
+      }
+      if (botEl) {
+        botEl.style.top = Math.round(toScreen(708)) + 'px';
+        botEl.style.bottom = 'auto';
+      }
+    }
+
+    window.addEventListener('load', adaptSvgForDevice);
+    window.addEventListener('resize', adaptSvgForDevice);
+    window.addEventListener('orientationchange', adaptSvgForDevice);
+  </script>
+
+</body>
+</html>

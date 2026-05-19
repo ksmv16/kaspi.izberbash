@@ -1,0 +1,2678 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>ЖК Каспий — Выбор квартиры</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #071425;
+      color: #ffffff;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(232,217,194,0.10), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(74,112,156,0.18), transparent 32%),
+        linear-gradient(180deg, #071425 0%, #0a1a2f 48%, #071425 100%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      padding: 118px 28px 70px;
+    }
+
+    .page-bg {
+      position: fixed;
+      inset: -50px;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(7, 20, 37, 0.78), rgba(7, 20, 37, 0.90)),
+        url("./bloki.png");
+      background-size: cover;
+      background-position: center;
+      filter: blur(26px) saturate(0.85) brightness(0.58);
+      transform: scale(1.08);
+      pointer-events: none;
+    }
+
+    .page-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(232,217,194,0.13), transparent 28%),
+        linear-gradient(to bottom, rgba(7,20,37,0.35), rgba(7,20,37,0.96));
+    }
+
+    .top-nav {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      width: calc(100% - 48px);
+      max-width: 1280px;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(7, 20, 37, 0.68);
+      border: 1px solid rgba(232, 217, 194, 0.14);
+      border-radius: 999px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow:
+        0 18px 50px rgba(0,0,0,0.25),
+        inset 0 0 22px rgba(232,217,194,0.025);
+      transition:
+        transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+        opacity 0.38s ease;
+    }
+
+    .top-nav.nav-hidden {
+      transform: translateX(-50%) translateY(-145%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-inner {
+      padding: 16px 34px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 34px;
+    }
+
+    .nav-side {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+    }
+
+    .nav-side.left {
+      justify-content: flex-start;
+    }
+
+    .nav-side.right {
+      justify-content: flex-end;
+    }
+
+    .nav-link {
+      position: relative;
+      color: rgba(232, 217, 194, 0.90);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 13px;
+      font-weight: 300;
+      white-space: nowrap;
+      transition: color 0.3s ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      width: 0;
+      height: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(
+        90deg,
+        rgba(232,217,194,0),
+        rgba(232,217,194,0.9),
+        rgba(232,217,194,0)
+      );
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #f3dfb8;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-logo {
+      color: #f3dfb8;
+      text-transform: uppercase;
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      text-shadow: 0 0 24px rgba(232,217,194,0.10);
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    .hero {
+      max-width: 1280px;
+      margin: 0 auto 34px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(232,217,194,0.82);
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 46px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(232,217,194,0.9), rgba(232,217,194,0));
+    }
+
+    .title {
+      margin: 0;
+      color: #f3dfb8;
+      font-size: clamp(42px, 5vw, 78px);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
+
+    .subtitle {
+      max-width: 720px;
+      margin: 22px 0 0;
+      color: rgba(255,255,255,0.70);
+      font-size: 18px;
+      line-height: 1.55;
+      font-weight: 300;
+    }
+
+    .hero-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .info-card {
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(232,217,194,0.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow:
+        0 20px 50px rgba(0,0,0,0.20),
+        inset 0 0 22px rgba(232,217,194,0.02);
+    }
+
+    .info-value {
+      color: #f3dfb8;
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .info-label {
+      color: rgba(255,255,255,0.58);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .layout {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.65fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .plan-card,
+    .apartments-panel {
+      border-radius: 34px;
+      background:
+        linear-gradient(180deg, rgba(14,35,61,0.82), rgba(7,20,37,0.90));
+      border: 1px solid rgba(232,217,194,0.14);
+      box-shadow:
+        0 32px 90px rgba(0,0,0,0.32),
+        inset 0 0 28px rgba(232,217,194,0.025);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow: hidden;
+    }
+
+    .plan-head {
+      padding: 22px 24px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid rgba(232,217,194,0.10);
+    }
+
+    .plan-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .plan-title strong {
+      color: #f3dfb8;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+    }
+
+    .plan-title span {
+      color: rgba(255,255,255,0.56);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .plan-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tool-btn {
+      height: 42px;
+      min-width: 42px;
+      border: 1px solid rgba(232,217,194,0.14);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.055);
+      color: rgba(232,217,194,0.94);
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+    }
+
+    .tool-btn:hover {
+      background: rgba(232,217,194,0.13);
+      border-color: rgba(232,217,194,0.28);
+    }
+
+    .tool-btn--active {
+      background: rgba(210,175,115,0.22);
+      border-color: rgba(210,175,115,0.55);
+      color: #d2af73;
+    }
+
+    .view-toggle {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid rgba(232,217,194,0.14);
+      border-radius: 999px;
+      padding: 4px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .view-toggle.visible {
+      display: flex;
+    }
+
+    .view-toggle .tool-btn {
+      border: none;
+      background: transparent;
+      height: 34px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 0 12px;
+    }
+
+    .view-toggle .tool-btn--active {
+      background: rgba(210,175,115,0.22);
+      border-radius: 999px;
+      color: #d2af73;
+    }
+
+    .plan-stage {
+      position: relative;
+      height: min(68vh, 720px);
+      min-height: 520px;
+      background:
+        radial-gradient(circle at center, rgba(232,217,194,0.08), transparent 50%),
+        rgba(4,12,24,0.34);
+      overflow: hidden;
+      cursor: grab;
+      touch-action: pan-y;
+    }
+
+    .plan-stage.can-drag {
+      touch-action: none;
+    }
+
+    .plan-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .plan-transform {
+      position: absolute;
+      inset: 0;
+      transform-origin: center center;
+      transition: transform 0.12s linear;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .plan-image-frame {
+      max-width: 92%;
+      max-height: 92%;
+      padding: 16px;
+      border-radius: 28px;
+      background:
+        linear-gradient(135deg, rgba(232,217,194,0.14), rgba(255,255,255,0.025)),
+        rgba(7,20,37,0.58);
+      border: 1px solid rgba(232,217,194,0.14);
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.44),
+        inset 0 0 28px rgba(232,217,194,0.025);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .plan-image {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+      border-radius: 18px;
+      filter:
+        contrast(0.96)
+        brightness(0.94)
+        saturate(0.92)
+        drop-shadow(0 20px 55px rgba(0,0,0,0.42));
+    }
+
+    .plan-placeholder {
+      width: min(88%, 700px);
+      min-height: 440px;
+      border-radius: 28px;
+      border: 1px dashed rgba(232,217,194,0.28);
+      background:
+        linear-gradient(135deg, rgba(232,217,194,0.08), rgba(255,255,255,0.025)),
+        rgba(7,20,37,0.44);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      text-align: center;
+      padding: 28px;
+    }
+
+    .plan-placeholder.visible {
+      display: flex;
+    }
+
+    .placeholder-number {
+      width: 86px;
+      height: 86px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(232,217,194,0.12);
+      border: 1px solid rgba(232,217,194,0.18);
+      color: #f3dfb8;
+      font-size: 42px;
+      font-weight: 500;
+    }
+
+    .placeholder-title {
+      color: #f3dfb8;
+      font-size: 30px;
+      line-height: 1.1;
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+
+    .placeholder-text {
+      color: rgba(255,255,255,0.64);
+      font-size: 15px;
+      line-height: 1.55;
+      max-width: 470px;
+      margin: 0;
+    }
+
+    .selected-apartment-panel {
+      display: none;
+      padding: 20px 22px 22px;
+      border-top: 1px solid rgba(232,217,194,0.10);
+      background: rgba(0,0,0,0.10);
+    }
+
+    .selected-apartment-panel.visible {
+      display: block;
+    }
+
+    .selected-title {
+      margin: 0 0 7px;
+      color: #f3dfb8;
+      font-size: 26px;
+      line-height: 1.05;
+      font-weight: 500;
+      letter-spacing: -0.05em;
+    }
+
+    .selected-text {
+      margin: 0;
+      color: rgba(255,255,255,0.62);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .selected-details {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .selected-detail {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(232,217,194,0.11);
+      padding: 14px;
+    }
+
+    .selected-detail small {
+      display: block;
+      color: rgba(255,255,255,0.48);
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .selected-detail strong {
+      display: block;
+      color: rgba(255,255,255,0.90);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .selected-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .gold-action-btn,
+    .primary-btn {
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      padding: 16px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f1dfbf, #d2af73);
+      color: #0a1a2f;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .gold-action-btn:hover,
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(210,175,115,0.22);
+    }
+
+    .inline-calculator {
+      display: none;
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(232,217,194,0.12);
+    }
+
+    .inline-calculator.visible {
+      display: block;
+    }
+
+    .calculator-title {
+      margin: 0 0 16px;
+      color: #f3dfb8;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .calc-row {
+      margin-bottom: 20px;
+    }
+
+    .calc-label {
+      display: block;
+      color: rgba(255,255,255,0.58);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .range-input {
+      width: 100%;
+      accent-color: #e8d9c2;
+      cursor: pointer;
+    }
+
+    .range-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 9px;
+      color: rgba(255,255,255,0.82);
+      font-size: 13px;
+    }
+
+    .range-meta strong {
+      color: #f3dfb8;
+      font-weight: 600;
+    }
+
+    .pv-rub-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pv-rub-input {
+      width: 126px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(232,217,194,0.20);
+      border-radius: 10px;
+      color: #f3dfb8;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 600;
+      text-align: right;
+      outline: none;
+      -moz-appearance: textfield;
+      appearance: textfield;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .pv-rub-input::-webkit-outer-spin-button,
+    .pv-rub-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .pv-rub-input:focus {
+      border-color: rgba(232,217,194,0.42);
+      background: rgba(255,255,255,0.11);
+    }
+
+    .pv-rub-suffix {
+      color: rgba(232,217,194,0.68);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .calc-results {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .calc-result {
+      border-radius: 18px;
+      background: rgba(0,0,0,0.18);
+      padding: 14px;
+    }
+
+    .calc-result small {
+      display: block;
+      color: rgba(255,255,255,0.48);
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .calc-result strong {
+      display: block;
+      color: rgba(255,255,255,0.92);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .calc-result.monthly strong {
+      color: #f3dfb8;
+      font-size: 21px;
+    }
+
+    .plan-note {
+      padding: 16px 22px;
+      color: rgba(255,255,255,0.55);
+      font-size: 13px;
+      line-height: 1.45;
+      border-top: 1px solid rgba(232,217,194,0.10);
+      background: rgba(0,0,0,0.10);
+    }
+
+    .apartments-panel {
+      position: sticky;
+      top: 104px;
+      max-height: calc(100vh - 128px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-head {
+      padding: 22px 22px 16px;
+      border-bottom: 1px solid rgba(232,217,194,0.10);
+    }
+
+    .panel-title {
+      margin: 0 0 12px;
+      color: #f3dfb8;
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+    }
+
+    .panel-subtitle {
+      margin: 0;
+      color: rgba(255,255,255,0.58);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .filters {
+      padding: 16px 22px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(232,217,194,0.10);
+    }
+
+    .filter-btn {
+      border: 1px solid rgba(232,217,194,0.14);
+      background: rgba(255,255,255,0.045);
+      color: rgba(255,255,255,0.72);
+      padding: 9px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.25s ease;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: rgba(232,217,194,0.16);
+      border-color: rgba(232,217,194,0.36);
+      color: #f3dfb8;
+    }
+
+    .apartments-list {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .apartment-card {
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(232,217,194,0.12);
+      border-radius: 24px;
+      background: rgba(255,255,255,0.045);
+      padding: 16px;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .apartment-card:hover {
+      transform: translateY(-3px);
+      background: rgba(232,217,194,0.09);
+      border-color: rgba(232,217,194,0.30);
+      box-shadow: 0 18px 44px rgba(0,0,0,0.24);
+    }
+
+    .apartment-card.active {
+      background: rgba(232,217,194,0.13);
+      border-color: rgba(232,217,194,0.42);
+      box-shadow: 0 18px 44px rgba(0,0,0,0.30);
+    }
+
+    .apartment-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .apartment-name {
+      color: #f3dfb8;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+    }
+
+    .apartment-file {
+      margin-top: 4px;
+      color: rgba(255,255,255,0.45);
+      font-size: 11px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .apartment-tag {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(232,217,194,0.13);
+      color: rgba(232,217,194,0.95);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .view-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 7px;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: rgba(87, 186, 255, 0.12);
+      color: rgba(163, 220, 255, 0.96);
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .apartment-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .apartment-param {
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.16);
+    }
+
+    .apartment-param small {
+      display: block;
+      color: rgba(255,255,255,0.48);
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .apartment-param strong {
+      color: rgba(255,255,255,0.88);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .empty-list {
+      display: none;
+      padding: 22px;
+      text-align: center;
+      color: rgba(255,255,255,0.56);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .empty-list.visible {
+      display: block;
+    }
+
+    #leadFixedButton {
+      position: fixed;
+      right: 26px;
+      bottom: 26px;
+      z-index: 180;
+      width: 58px;
+      min-width: 58px;
+      height: 58px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      border: none;
+      border-radius: 999px;
+      outline: none;
+      background: linear-gradient(135deg, #f1dfbf, #d2af73);
+      color: #0a1a2f;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.42),
+        0 0 34px rgba(232,217,194,0.28);
+      overflow: hidden;
+      white-space: nowrap;
+      transition: 0.32s ease;
+    }
+
+    #leadFixedButton span:not(.lead-icon) {
+      display: inline-block;
+      max-width: 0;
+      opacity: 0;
+      transform: translateX(10px);
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 15px;
+      transition: 0.32s ease;
+    }
+
+    #leadFixedButton:hover,
+    #leadFixedButton:focus-visible,
+    #leadFixedButton:active {
+      width: 210px;
+      min-width: 210px;
+      padding: 0 22px;
+      gap: 10px;
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    #leadFixedButton:hover span:not(.lead-icon),
+    #leadFixedButton:focus-visible span:not(.lead-icon),
+    #leadFixedButton:active span:not(.lead-icon) {
+      max-width: 150px;
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(3,10,22,0.78);
+      backdrop-filter: blur(18px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal.visible {
+      opacity: 1;
+    }
+
+    .modal-card {
+      width: min(100%, 760px);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background:
+        linear-gradient(180deg, rgba(14,35,61,0.98), rgba(7,20,37,0.99));
+      border: 1px solid rgba(232,217,194,0.17);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: 0 35px 100px rgba(0,0,0,0.48);
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.3s ease;
+    }
+
+    .modal.visible .modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      color: #f3dfb8;
+      font-size: 30px;
+      line-height: 1.05;
+      font-weight: 500;
+      letter-spacing: -0.05em;
+      margin: 0 0 8px;
+    }
+
+    .modal-text {
+      color: rgba(255,255,255,0.66);
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .modal-close {
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.06);
+      color: rgba(232,217,194,0.94);
+      font-size: 22px;
+    }
+
+    .request-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .request-input,
+    .request-select {
+      width: 100%;
+      border: 1px solid rgba(232,217,194,0.14);
+      outline: none;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.055);
+      color: #fff;
+      padding: 16px 17px;
+      font-size: 16px;
+    }
+
+    .request-input::placeholder {
+      color: rgba(255,255,255,0.42);
+    }
+
+    .request-select option {
+      background: #071425;
+      color: #fff;
+    }
+
+    .request-note {
+      color: rgba(255,255,255,0.42);
+      font-size: 12px;
+      line-height: 1.45;
+      margin: 2px 0 0;
+      text-align: center;
+    }
+
+    /* ===== BLOCK SWITCHER (mobile only) ===== */
+    .block-switcher {
+      display: none;
+    }
+
+    .block-switch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 22px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f1dfbf, #d2af73);
+      color: #0a1a2f;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 8px 24px rgba(210,175,115,0.28);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .block-switch-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 4px 12px rgba(210,175,115,0.18);
+    }
+
+    .block-switch-label {
+      color: rgba(232,217,194,0.60);
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    /* ===== APT DOTS (mobile only) ===== */
+    .apt-dots-row {
+      display: none;
+    }
+
+    .apt-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(232,217,194,0.28);
+      transition: width 0.32s cubic-bezier(0.23,1,0.32,1), background 0.3s ease;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .apt-dot.active {
+      width: 22px;
+      background: #f3dfb8;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .apartments-panel {
+        position: relative;
+        top: auto;
+        max-height: none;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .hero-info {
+        max-width: 720px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        padding: 92px 12px 120px;
+      }
+
+      .top-nav {
+        display: none;
+      }
+
+      .mobile-nav {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        z-index: 120;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border-radius: 22px;
+        background: rgba(7, 20, 37, 0.76);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(232, 217, 194, 0.16);
+        box-shadow: 0 18px 50px rgba(0,0,0,0.28);
+        transition:
+          transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+          opacity 0.38s ease;
+      }
+
+      .mobile-nav.mobile-nav-hidden {
+        transform: translateY(-130%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .mobile-nav a {
+        color: rgba(232, 217, 194, 0.95);
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.13em;
+      }
+
+      .hero {
+        margin-bottom: 20px;
+        gap: 18px;
+      }
+
+      .eyebrow {
+        font-size: 11px;
+        margin-bottom: 14px;
+      }
+
+      .title {
+        font-size: 42px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        margin-top: 16px;
+      }
+
+      .hero-info {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .info-card {
+        border-radius: 18px;
+        padding: 13px;
+      }
+
+      .info-value {
+        font-size: 19px;
+      }
+
+      .info-label {
+        font-size: 10px;
+      }
+
+      .layout {
+        gap: 14px;
+      }
+
+      .plan-card,
+      .apartments-panel {
+        border-radius: 26px;
+      }
+
+      .plan-head {
+        padding: 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .plan-tools {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .plan-stage {
+        height: 58vh;
+        min-height: 280px;
+      }
+
+      .plan-image-frame {
+        max-width: 96%;
+        max-height: 96%;
+        padding: 10px;
+        border-radius: 22px;
+      }
+
+      .selected-details {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .selected-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-card {
+        border-radius: 24px;
+        padding: 24px;
+      }
+
+      #leadFixedButton {
+        right: 18px;
+        bottom: 48px;
+      }
+
+      /* ── Block switcher ── */
+      .block-switcher {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      /* ── Reorder: apartments above, plan below ── */
+      .layout {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .apartments-panel {
+        order: -1;
+        overflow: visible !important;
+      }
+
+      /* ── Horizontal swipe carousel ── */
+      .apartments-list {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 18px 14px !important;
+        gap: 12px !important;
+        scrollbar-width: none !important;
+        max-height: none !important;
+        cursor: default !important;
+        align-items: stretch;
+      }
+
+      .apartments-list::-webkit-scrollbar { display: none; }
+
+      .apartment-card {
+        flex: 0 0 82vw !important;
+        scroll-snap-align: start;
+        min-width: 0;
+        max-width: 380px;
+        transform: none !important;
+        box-shadow: none;
+      }
+
+      .apartment-card:hover {
+        transform: none !important;
+      }
+
+      /* ── Dots ── */
+      .apt-dots-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 16px 10px;
+      }
+
+      /* ── Smaller plan viewer ── */
+      .plan-stage {
+        height: 40vh !important;
+        min-height: 190px !important;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        padding: 82px 10px 90px;
+      }
+
+      .title {
+        font-size: 32px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        margin-top: 12px;
+      }
+
+      .hero-info {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .info-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 14px;
+        border-radius: 16px;
+      }
+
+      .info-value {
+        margin-bottom: 0;
+        font-size: 17px;
+      }
+
+      .info-label {
+        text-align: right;
+        font-size: 11px;
+      }
+
+      .plan-stage {
+        height: 36vh !important;
+        min-height: 170px !important;
+      }
+
+      .apartment-card {
+        flex: 0 0 86vw !important;
+        max-width: none !important;
+      }
+
+      .plan-card,
+      .apartments-panel {
+        border-radius: 22px;
+      }
+
+      .panel-head {
+        padding: 14px 14px 12px;
+      }
+
+      .panel-title {
+        font-size: 18px;
+        margin-bottom: 6px;
+      }
+
+      .filters {
+        padding: 10px 14px;
+        gap: 6px;
+      }
+
+      .filter-btn {
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+
+      .apartments-list {
+        padding: 10px;
+        gap: 8px;
+      }
+
+      .apartment-card {
+        padding: 12px;
+        border-radius: 18px;
+      }
+
+      .apartment-name {
+        font-size: 15px;
+      }
+
+      .apartment-grid,
+      .selected-details,
+      .calc-results {
+        grid-template-columns: 1fr;
+      }
+
+      .mobile-nav a {
+        font-size: 11px;
+      }
+
+      #leadFixedButton {
+        right: 14px;
+        bottom: 14px;
+        width: 50px;
+        min-width: 50px;
+        height: 50px;
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .page {
+        padding: 76px 8px 80px;
+      }
+
+      .title {
+        font-size: 28px;
+      }
+
+      .eyebrow {
+        font-size: 10px;
+      }
+
+      .plan-stage {
+        height: 48vh;
+        min-height: 200px;
+      }
+
+      .plan-head {
+        padding: 12px;
+      }
+
+      .plan-title strong {
+        font-size: 17px;
+      }
+
+      .selected-text {
+        font-size: 12px;
+      }
+
+      .apartment-name {
+        font-size: 14px;
+      }
+
+      .apartment-param small {
+        font-size: 10px;
+      }
+
+      .apartment-param strong {
+        font-size: 13px;
+      }
+
+      .mobile-nav {
+        padding: 10px 14px;
+      }
+
+      .mobile-nav a {
+        font-size: 10px;
+        letter-spacing: 0.10em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-bg"></div>
+  <div class="page-glow"></div>
+
+  <button id="leadFixedButton" type="button" onclick="openRequestModal()">
+    <span class="lead-icon">☎</span>
+    <span>Оставить заявку</span>
+  </button>
+
+  <nav id="mobileNav" class="mobile-nav">
+    <a href="./blocks.html">Блоки</a>
+    <a href="./index.html">Главная</a>
+    <a href="tel:+79840000304">Позвонить</a>
+  </nav>
+
+  <nav id="topNav" class="top-nav">
+    <div class="nav-inner">
+      <div class="nav-side left">
+        <a href="./index.html" class="nav-link">Главная</a>
+        <a href="./blocks.html" class="nav-link">Выбор блока</a>
+      </div>
+
+      <a href="./index.html" class="nav-logo">Каспий</a>
+
+      <div class="nav-side right">
+        <a href="#apartments" class="nav-link">Квартиры</a>
+        <a href="tel:+79840000304" class="nav-link">+7-984-000-03-04</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div id="blockSwitcher" class="block-switcher">
+      <a href="./blocks.html" class="block-switch-btn">← Сменить блок</a>
+      <span id="blockSwitcherLabel" class="block-switch-label">Блок 1</span>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Выбор квартиры</div>
+        <h1 id="pageTitle" class="title">Блок 1</h1>
+        <p id="pageSubtitle" class="subtitle">
+          Выберите подходящую квартиру и посмотрите планировку.
+        </p>
+      </div>
+
+      <div class="hero-info">
+        <div class="info-card">
+          <div class="info-value">150 м</div>
+          <div class="info-label">до Каспийского моря</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-value">48 мес</div>
+          <div class="info-label">рассрочка</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-value">300 000 ₽</div>
+          <div class="info-label">минимальный первый взнос</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="plan-card">
+        <div class="plan-head">
+          <div class="plan-title">
+            <strong id="planTitle">Планировки блока</strong>
+            <span id="planSubtitle">Выберите квартиру справа.</span>
+          </div>
+
+          <div class="plan-tools">
+            <div id="viewToggle" class="view-toggle">
+              <button id="btn2d" class="tool-btn tool-btn--active" type="button" onclick="setView('2d')">2D</button>
+              <button id="btn3d" class="tool-btn" type="button" onclick="setView('3d')">3D</button>
+            </div>
+            <button class="tool-btn" type="button" onclick="zoomOut()">−</button>
+            <button class="tool-btn" type="button" onclick="resetZoom()">Сброс</button>
+            <button class="tool-btn" type="button" onclick="zoomIn()">+</button>
+          </div>
+        </div>
+
+        <div id="planStage" class="plan-stage">
+          <div id="planTransform" class="plan-transform">
+            <div id="planImageFrame" class="plan-image-frame">
+              <img id="planImage" class="plan-image" src="" alt="Планировка квартиры" draggable="false">
+            </div>
+
+            <div id="planPlaceholder" class="plan-placeholder">
+              <div id="placeholderNumber" class="placeholder-number">1</div>
+              <h2 id="placeholderTitle" class="placeholder-title">Выберите квартиру</h2>
+              <p id="placeholderText" class="placeholder-text">
+                Нажмите на карточку квартиры справа, чтобы увидеть планировку.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div id="selectedApartmentPanel" class="selected-apartment-panel">
+          <div>
+            <h3 id="selectedApartmentTitle" class="selected-title">Квартира</h3>
+            <p id="selectedApartmentText" class="selected-text">Выберите квартиру справа.</p>
+          </div>
+
+          <div class="selected-details">
+            <div class="selected-detail">
+              <small>Тип</small>
+              <strong id="selectedType">—</strong>
+            </div>
+
+            <div class="selected-detail">
+              <small>Площадь</small>
+              <strong id="selectedArea">—</strong>
+            </div>
+
+            <div class="selected-detail">
+              <small>Сторона / вид</small>
+              <strong id="selectedView">—</strong>
+            </div>
+
+            <div class="selected-detail">
+              <small>Панорамные окна</small>
+              <strong>Да</strong>
+            </div>
+          </div>
+
+          <div class="selected-actions">
+            <button class="gold-action-btn" type="button" onclick="showCalculator()">Рассчитать рассрочку</button>
+            <button class="gold-action-btn" type="button" onclick="openRequestModalFromApartment()">Оставить заявку</button>
+            <button class="gold-action-btn" type="button" onclick="sendApartmentWhatsApp()">Написать в WhatsApp</button>
+          </div>
+
+          <div id="calculatorBox" class="inline-calculator">
+            <h4 class="calculator-title">Калькулятор рассрочки</h4>
+
+            <div class="calc-row">
+              <label class="calc-label" for="pvRange">Первоначальный взнос (мин. 300 000 ₽)</label>
+              <input
+                type="range"
+                id="pvRange"
+                class="range-input"
+                min="0"
+                max="100"
+                value="30"
+                step="1"
+                oninput="updateCalculator()"
+              >
+
+              <div class="range-meta">
+                <span id="pvPercent">30%</span>
+                <label class="pv-rub-label">
+                  <input
+                    type="number"
+                    id="pvInput"
+                    class="pv-rub-input"
+                    min="300000"
+                    step="10000"
+                    placeholder="300 000"
+                    oninput="onPvManualInput()"
+                    onblur="onPvInputBlur()"
+                  >
+                  <span class="pv-rub-suffix">₽</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="calc-row">
+              <label class="calc-label" for="monthsRange">Срок рассрочки</label>
+              <input
+                type="range"
+                id="monthsRange"
+                class="range-input"
+                min="3"
+                max="48"
+                value="48"
+                step="1"
+                oninput="updateCalculator()"
+              >
+
+              <div class="range-meta">
+                <span id="monthsValue">48 месяцев</span>
+                <strong id="pricePerM2">—</strong>
+              </div>
+            </div>
+
+            <div class="calc-results">
+              <div class="calc-result">
+                <small>Полная стоимость</small>
+                <strong id="fullPrice">—</strong>
+              </div>
+
+              <div class="calc-result">
+                <small>Остаток после ПВ</small>
+                <strong id="remainingPrice">—</strong>
+              </div>
+
+              <div class="calc-result monthly">
+                <small>Ежемесячный платёж</small>
+                <strong id="monthlyPay">—</strong>
+              </div>
+
+              <div class="calc-result">
+                <small>Правило цены</small>
+                <strong id="priceRule">—</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="plan-note">
+          Нажмите на квартиру справа — большая планировка появится здесь. Калькулятор откроется только после кнопки
+          <strong>«Рассчитать рассрочку»</strong>.
+        </div>
+      </div>
+
+      <aside id="apartments" class="apartments-panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Квартиры в блоке</h2>
+          <p id="folderInfo" class="panel-subtitle">Загружаю планировки...</p>
+        </div>
+
+        <div class="filters">
+          <button class="filter-btn active" type="button" onclick="setFilter('all', this)" data-type="all">Все</button>
+          <button class="filter-btn" type="button" onclick="setFilter('Студия', this)" data-type="Студия">Студии</button>
+          <button class="filter-btn" type="button" onclick="setFilter('1-комн.', this)" data-type="1-комн.">1-комн.</button>
+          <button class="filter-btn" type="button" onclick="setFilter('2-комн.', this)" data-type="2-комн.">2-комн.</button>
+          <button class="filter-btn" type="button" onclick="setFilter('3-комн.', this)" data-type="3-комн.">3-комн.</button>
+        </div>
+
+        <div id="apartmentsList" class="apartments-list"></div>
+        <div id="aptDotsRow" class="apt-dots-row"></div>
+
+        <div id="emptyList" class="empty-list">
+          По этому фильтру квартир пока нет.
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="requestModal" class="modal" onclick="closeRequestModalByBg(event)">
+    <div class="modal-card">
+      <div class="modal-top">
+        <div>
+          <h3 class="modal-title">Оставьте заявку</h3>
+          <p class="modal-text">Заполните данные, и менеджер свяжется с вами.</p>
+        </div>
+
+        <button class="modal-close" type="button" onclick="closeRequestModal()">×</button>
+      </div>
+
+      <form class="request-form" onsubmit="sendRequest(event)">
+        <input id="requestName" class="request-input" type="text" placeholder="Ваше имя" required>
+        <input id="requestPhone" class="request-input" type="tel" placeholder="Номер телефона" required>
+
+        <select id="requestApartment" class="request-select">
+          <option value="">Интересующая квартира</option>
+        </select>
+
+        <button class="primary-btn" type="submit">Отправить заявку</button>
+
+        <p class="request-note">Заявка отправится менеджеру через WhatsApp.</p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const PHONE = '79840000304';
+    const MIN_DOWN_PAYMENT_RUB = 300000;
+    const MIN_MONTHLY = 40000;
+
+    const params = new URLSearchParams(window.location.search);
+    const rawBlock = Number(params.get('block'));
+    const currentBlock = rawBlock >= 1 && rawBlock <= 13 ? rawBlock : 1;
+
+    const BLOCK_FOLDER_MAP = {
+      1:  'b1',
+      4:  'b4',
+
+      2:  'b2',
+      3:  'b2',
+      11: 'b2',
+      12: 'b2',
+
+      5:  'b5',
+      6:  'b6',
+
+      7:  'b7',
+      8:  'b7',
+      9:  'b7',
+
+      10: 'b10',
+      13: 'b13'
+    };
+
+    const BLOCK_GROUP_LABEL = {
+      b1:  'Блок 1',
+      b4:  'Блок 4',
+      b2:  'Блоки 2, 3, 11, 12',
+      b5:  'Блок 5',
+      b6:  'Блок 6',
+      b7:  'Блоки 7, 8 и 9',
+      b10: 'Блок 10',
+      b13: 'Блок 13'
+    };
+
+    const APARTMENTS_BY_FOLDER = {
+      b1: [
+        { type: '2-комн.', area: 58.64, view: 'двор',  file: 'Dvushka_58_64_2d.png',   file2d: 'Dvushka_58_64_2d.png',   file3d: 'Dvushka_58_64_3d.png' },
+        { type: 'Студия',  area: 31.79, view: 'горы',  file: 'Studiya_31_79_2d.png',   file2d: 'Studiya_31_79_2d.png',   file3d: 'Studiya_31_79_3d.png' },
+        { type: 'Студия',  area: 29.96, view: 'горы',  file: 'Studiya_29_96_2d.png',   file2d: 'Studiya_29_96_2d.png',   file3d: 'Studiya_29_96_3d.png' },
+        { type: 'Студия',  area: 30.56, view: 'горы',  file: 'Studiya_30_56_2d.png',   file2d: 'Studiya_30_56_2d.png',   file3d: 'Studiya_30_56_3d.png' },
+        { type: 'Студия',  area: 32.13, view: 'горы',  file: 'Studiya_32_13_2d.png',   file2d: 'Studiya_32_13_2d.png',   file3d: 'Studiya_32_13_3d.png' },
+        { type: '1-комн.', area: 46.06, view: 'горы',  file: 'Odnushka_46_06_2d.png',  file2d: 'Odnushka_46_06_2d.png',  file3d: 'Odnushka_46_06_3d.png' },
+        { type: 'Студия',  area: 28.29, view: 'двор',  file: 'Studiya_28_29_2d.png',   file2d: 'Studiya_28_29_2d.png',   file3d: 'Studiya_28_29_3d.png' }
+      ],
+
+      b2: [
+        { type: '1-комн.', area: 48.92, view: 'двор',  file: 'Odnushka_48_92_2d.png',  file2d: 'Odnushka_48_92_2d.png',  file3d: 'Odnushka_48_92_3d.png' },
+        { type: 'Студия',  area: 24.73, view: 'двор',  file: 'Studiya_24_73_2d.png',   file2d: 'Studiya_24_73_2d.png',   file3d: 'Studiya_24_73_3d.png' },
+        { type: 'Студия',  area: 32.07, view: 'двор',  file: 'Studiya_32_07_2d.png',   file2d: 'Studiya_32_07_2d.png',   file3d: 'Studiya_32_07_3d.png' },
+        { type: 'Студия',  area: 29.93, view: 'горы',  file: 'Studiya_29_93_2d.png',   file2d: 'Studiya_29_93_2d.png',   file3d: 'Studiya_29_93_3d.png' },
+        { type: 'Студия',  area: 22.00, view: 'горы',  file: 'Studiya_22_2d.png',       file2d: 'Studiya_22_2d.png',       file3d: 'Studiya_22_3d.png' },
+        { type: 'Студия',  area: 27.89, view: 'горы',  file: 'Studiya_27_89_2d.png',   file2d: 'Studiya_27_89_2d.png',   file3d: 'Studiya_27_89_3d.png' },
+        { type: 'Студия',  area: 27.89, view: 'горы',  file: 'Studiya_27_89_2d.png',   file2d: 'Studiya_27_89_2d.png',   file3d: 'Studiya_27_89_3d.png' },
+        { type: '1-комн.', area: 45.09, view: 'горы',  file: 'Odnushka_45_09_2d.png',  file2d: 'Odnushka_45_09_2d.png',  file3d: 'Odnushka_45_09_3d.png' },
+        { type: 'Студия',  area: 25.66, view: 'горы',  file: 'Studiya_25_66_2d.png',   file2d: 'Studiya_25_66_2d.png',   file3d: 'Studiya_25_66_3d.png' },
+        { type: 'Студия',  area: 29.93, view: 'горы',  file: 'Studiya_29_93_2d.png',   file2d: 'Studiya_29_93_2d.png',   file3d: 'Studiya_29_93_3d.png' },
+        { type: 'Студия',  area: 32.07, view: 'двор',  file: 'Studiya_32_07_2d.png',   file2d: 'Studiya_32_07_2d.png',   file3d: 'Studiya_32_07_3d.png' },
+        { type: 'Студия',  area: 28.07, view: 'двор',  file: 'Studiya_28_07_2d.png',   file2d: 'Studiya_28_07_2d.png',   file3d: 'Studiya_28_07_3d.png' },
+        { type: 'Студия',  area: 27.64, view: 'двор',  file: 'Studiya_27_64_2d.png',   file2d: 'Studiya_27_64_2d.png',   file3d: 'Studiya_27_64_3d.png' }
+      ],
+
+      b4: [
+        { type: 'Студия',  area: 28.29, view: 'двор',       file: 'Studiya_28_29_2d.png',   file2d: 'Studiya_28_29_2d.png',   file3d: 'Studiya_28_29_3d.png' },
+        { type: '1-комн.', area: 48.26, view: 'горы',       file: 'Odnushka_48_26_2d.png',  file2d: 'Odnushka_48_26_2d.png',  file3d: 'Odnushka_48_26_3d.png' },
+        { type: 'Студия',  area: 30.21, view: 'горы',       file: 'Studiya_30_21_2d.png',   file2d: 'Studiya_30_21_2d.png',   file3d: 'Studiya_30_21_3d.png' },
+        { type: 'Студия',  area: 30.21, view: 'горы',       file: 'Studiya_30_21_2d.png',   file2d: 'Studiya_30_21_2d.png',   file3d: 'Studiya_30_21_3d.png' },
+        { type: 'Студия',  area: 30.29, view: 'горы',       file: 'Studiya_30_29_2d.png',   file2d: 'Studiya_30_29_2d.png',   file3d: 'Studiya_30_29_3d.png' },
+        { type: '1-комн.', area: 46.06, view: 'море+горы',  file: 'Odnushka_46_06_2d.png',  file2d: 'Odnushka_46_06_2d.png',  file3d: 'Odnushka_46_06_3d.png' },
+        { type: 'Студия',  area: 32.13, view: 'море',       file: 'Studiya_32_13_2d.png',   file2d: 'Studiya_32_13_2d.png',   file3d: 'Studiya_32_13_3d.png' },
+        { type: 'Студия',  area: 30.56, view: 'море',       file: 'Studiya_30_56_2d.png',   file2d: 'Studiya_30_56_2d.png',   file3d: 'Studiya_30_56_3d.png' },
+        { type: 'Студия',  area: 29.06, view: 'море',       file: 'Studiya_29_06_2d.png',   file2d: 'Studiya_29_06_2d.png',   file3d: 'Studiya_29_06_3d.png' },
+        { type: 'Студия',  area: 31.79, view: 'море',       file: 'Studiya_31_79_2d.png',   file2d: 'Studiya_31_79_2d.png',   file3d: 'Studiya_31_79_3d.png' },
+        { type: '2-комн.', area: 58.64, view: 'двор',       file: 'Dvushka_58_64_2d.png',   file2d: 'Dvushka_58_64_2d.png',   file3d: 'Dvushka_58_64_3d.png' }
+      ],
+
+      b5: [
+        { type: '1-комн.',       area: 50.68, view: 'двор',  file: 'Odnushka_50_68_2d.png',    file2d: 'Odnushka_50_68_2d.png',    file3d: 'Odnushka_50_68_3d.png' },
+        { type: 'Студия',        area: 30.39, view: 'двор',  file: 'Studiya_30_39_2d.png',     file2d: 'Studiya_30_39_2d.png',     file3d: 'Studiya_30_39_3d.png' },
+        { type: 'Евро-2-комн.',  area: 54.70, view: 'море',  file: 'Evrodvushka_54_7_2d.png',  file2d: 'Evrodvushka_54_7_2d.png',  file3d: 'Evrodvushka_54_7_3d.png' },
+        { type: 'Студия',        area: 28.10, view: 'море',  file: 'Studiya_28_1_2d.png',      file2d: 'Studiya_28_1_2d.png',      file3d: 'Studiya_28_1_3d.png' },
+        { type: '1-комн.',       area: 45.10, view: 'море',  file: 'Odnushka_45_1_2d.png',     file2d: 'Odnushka_45_1_2d.png',     file3d: 'Odnushka_45_1_3d.png' },
+        { type: 'Студия',        area: 25.66, view: 'море',  file: 'Studiya_25_66_2d.png',     file2d: 'Studiya_25_66_2d.png',     file3d: 'Studiya_25_66_3d.png' },
+        { type: 'Студия',        area: 29.89, view: 'море',  file: 'Studiya_29_89_2d.png',     file2d: 'Studiya_29_89_2d.png',     file3d: 'Studiya_29_89_3d.png' },
+        { type: 'Студия',        area: 32.03, view: 'двор',  file: 'Studiya_32_03_2d.png',     file2d: 'Studiya_32_03_2d.png',     file3d: 'Studiya_32_03_3d.png' },
+        { type: 'Студия',        area: 28.12, view: 'двор',  file: 'Studiya_28_12_2d.png',     file2d: 'Studiya_28_12_2d.png',     file3d: 'Studiya_28_12_3d.png' },
+        { type: 'Студия',        area: 27.67, view: 'двор',  file: 'Studiya_27_67_2d.png',     file2d: 'Studiya_27_67_2d.png',     file3d: 'Studiya_27_67_3d.png' }
+      ],
+
+      b6: [
+        { type: 'Студия',  area: 27.98, view: 'двор',  file: 'Studiya_27_98_2d.png',   file2d: 'Studiya_27_98_2d.png',   file3d: 'Studiya_27_98_3d.png' },
+        { type: '1-комн.', area: 50.67, view: 'море',  file: 'Odnushka_50_67_2d.png',  file2d: 'Odnushka_50_67_2d.png',  file3d: 'Odnushka_50_67_3d.png' },
+        { type: 'Студия',  area: 25.92, view: 'море',  file: 'Studiya_25_92_2d.png',   file2d: 'Studiya_25_92_2d.png',   file3d: 'Studiya_25_92_3d.png' },
+        { type: 'Студия',  area: 25.92, view: 'море',  file: 'Studiya_25_92_2d.png',   file2d: 'Studiya_25_92_2d.png',   file3d: 'Studiya_25_92_3d.png' },
+        { type: '2-комн.', area: 72.80, view: 'море',  file: 'Dvushka_72_8_2d.png',    file2d: 'Dvushka_72_8_2d.png',    file3d: 'Dvushka_72_8_3d.png' },
+        { type: 'Студия',  area: 29.42, view: 'нет',   file: 'Studiya_29_42_2d.png',   file2d: 'Studiya_29_42_2d.png',   file3d: 'Studiya_29_42_3d.png' },
+        { type: 'Студия',  area: 28.87, view: 'нет',   file: 'Studiya_28_87_2d.png',   file2d: 'Studiya_28_87_2d.png',   file3d: 'Studiya_28_87_3d.png' },
+        { type: 'Студия',  area: 29.42, view: 'нет',   file: 'Studiya_29_42_2d.png',   file2d: 'Studiya_29_42_2d.png',   file3d: 'Studiya_29_42_3d.png' },
+        { type: 'Студия',  area: 28.87, view: 'нет',   file: 'Studiya_28_87_2d.png',   file2d: 'Studiya_28_87_2d.png',   file3d: 'Studiya_28_87_3d.png' },
+        { type: 'Студия',  area: 29.42, view: 'нет',   file: 'Studiya_29_42_2d.png',   file2d: 'Studiya_29_42_2d.png',   file3d: 'Studiya_29_42_3d.png' },
+        { type: 'Студия',  area: 31.76, view: 'нет',   file: 'Studiya_31_76_2d.png',   file2d: 'Studiya_31_76_2d.png',   file3d: 'Studiya_31_76_3d.png' },
+        { type: '2-комн.', area: 66.64, view: 'двор',  file: 'Dvushka_66_64_2d.png',   file2d: 'Dvushka_66_64_2d.png',   file3d: 'Dvushka_66_64_3d.png' },
+        { type: '1-комн.', area: 41.13, view: 'двор',  file: 'Odnushka_41_13_2d.png',  file2d: 'Odnushka_41_13_2d.png',  file3d: 'Odnushka_41_13_3d.png' }
+      ],
+
+      b7: [
+        { type: 'Студия',  area: 28.91, view: 'двор',  file: 'Studiya_28_91_2d.png',   file2d: 'Studiya_28_91_2d.png',   file3d: 'Studiya_28_91_3d.png' },
+        { type: 'Студия',  area: 31.49, view: 'двор',  file: 'Studiya_31_49_2d.png',   file2d: 'Studiya_31_49_2d.png',   file3d: 'Studiya_31_49_3d.png' },
+        { type: 'Студия',  area: 29.35, view: 'двор',  file: 'Studiya_29_35_2d.png',   file2d: 'Studiya_29_35_2d.png',   file3d: 'Studiya_29_35_3d.png' },
+        { type: 'Студия',  area: 25.71, view: 'двор',  file: 'Studiya_25_71_2d.png',   file2d: 'Studiya_25_71_2d.png',   file3d: 'Studiya_25_71_3d.png' },
+        { type: '1-комн.', area: 43.90, view: 'двор',  file: 'Odnushka_43_9_2d.png',   file2d: 'Odnushka_43_9_2d.png',   file3d: 'Odnushka_43_9_3d.png' },
+        { type: 'Студия',  area: 25.71, view: 'двор',  file: 'Studiya_25_71_2d.png',   file2d: 'Studiya_25_71_2d.png',   file3d: 'Studiya_25_71_3d.png' },
+        { type: 'Студия',  area: 29.66, view: 'двор',  file: 'Studiya_29_66_2d.png',   file2d: 'Studiya_29_66_2d.png',   file3d: 'Studiya_29_66_3d.png' },
+        { type: 'Студия',  area: 32.39, view: 'двор',  file: 'Studiya_32_39_2d.png',   file2d: 'Studiya_32_39_2d.png',   file3d: 'Studiya_32_39_3d.png' },
+        { type: 'Студия',  area: 28.91, view: 'двор',  file: 'Studiya_28_91_2d.png',   file2d: 'Studiya_28_91_2d.png',   file3d: 'Studiya_28_91_3d.png' },
+        { type: 'Студия',  area: 27.15, view: 'двор',  file: 'Studiya_27_15_2d.png',   file2d: 'Studiya_27_15_2d.png',   file3d: 'Studiya_27_15_3d.png' }
+      ],
+
+      b10: [
+        { type: '2-комн.', area: 58.64, view: 'двор',  file: 'Dvushka_58_64_2d.png',   file2d: 'Dvushka_58_64_2d.png',   file3d: 'Dvushka_58_64_3d.png' },
+        { type: '2-комн.', area: 61.36, view: 'двор',  file: 'Dvushka_61_36_2d.png',   file2d: 'Dvushka_61_36_2d.png',   file3d: 'Dvushka_61_36_3d.png' },
+        { type: 'Студия',  area: 31.36, view: 'море',  file: 'Studiya_31_36_2d.png',   file2d: 'Studiya_31_36_2d.png',   file3d: 'Studiya_31_36_3d.png' },
+        { type: '1-комн.', area: 48.45, view: 'море',  file: 'Odnushka_48_45_2d.png',  file2d: 'Odnushka_48_45_2d.png',  file3d: 'Odnushka_48_45_3d.png' },
+        { type: 'Студия',  area: 28.48, view: 'море',  file: 'Studiya_28_48_2d.png',   file2d: 'Studiya_28_48_2d.png',   file3d: 'Studiya_28_48_3d.png' },
+        { type: 'Студия',  area: 29.27, view: 'море',  file: 'Studiya_29_27_2d.png',   file2d: 'Studiya_29_27_2d.png',   file3d: 'Studiya_29_27_3d.png' },
+        { type: 'Студия',  area: 29.27, view: 'море',  file: 'Studiya_29_27_2d.png',   file2d: 'Studiya_29_27_2d.png',   file3d: 'Studiya_29_27_3d.png' },
+        { type: 'Студия',  area: 30.85, view: 'море',  file: 'Studiya_30_85_2d.png',   file2d: 'Studiya_30_85_2d.png',   file3d: 'Studiya_30_85_3d.png' },
+        { type: '2-комн.', area: 60.73, view: 'море',  file: 'Dvushka_60_73_2d.png',   file2d: 'Dvushka_60_73_2d.png',   file3d: 'Dvushka_60_73_3d.png' },
+        { type: 'Студия',  area: 26.50, view: 'нет',   file: 'Studiya_26_50_2d.png',   file2d: 'Studiya_26_50_2d.png',   file3d: 'Studiya_26_50_3d.png' },
+        { type: 'Студия',  area: 30.21, view: 'нет',   file: 'Studiya_30_21_2d.png',   file2d: 'Studiya_30_21_2d.png',   file3d: 'Studiya_30_21_3d.png' },
+        { type: 'Студия',  area: 30.21, view: 'нет',   file: 'Studiya_30_21_2d.png',   file2d: 'Studiya_30_21_2d.png',   file3d: 'Studiya_30_21_3d.png' },
+        { type: '1-комн.', area: 48.10, view: 'нет',   file: 'Odnushka_48_10_2d.png',  file2d: 'Odnushka_48_10_2d.png',  file3d: 'Odnushka_48_10_3d.png' },
+        { type: 'Студия',  area: 28.29, view: 'двор',  file: 'Studiya_28_29_2d.png',   file2d: 'Studiya_28_29_2d.png',   file3d: 'Studiya_28_29_3d.png' }
+      ],
+
+      b13: [
+        { type: '2-комн.', area: 58.64, view: 'двор',  file: 'Dvushka_58_64_2d.png',   file2d: 'Dvushka_58_64_2d.png',   file3d: 'Dvushka_58_64_3d.png' },
+        { type: '2-комн.', area: 61.36, view: 'двор',  file: 'Dvushka_61_36_2d.png',   file2d: 'Dvushka_61_36_2d.png',   file3d: 'Dvushka_61_36_3d.png' },
+        { type: 'Студия',  area: 31.36, view: 'горы',  file: 'Studiya_31_36_2d.png',   file2d: 'Studiya_31_36_2d.png',   file3d: 'Studiya_31_36_3d.png' },
+        { type: '1-комн.', area: 48.45, view: 'горы',  file: 'Odnushka_48_45_2d.png',  file2d: 'Odnushka_48_45_2d.png',  file3d: 'Odnushka_48_45_3d.png' },
+        { type: 'Студия',  area: 28.48, view: 'горы',  file: 'Studiya_28_48_2d.png',   file2d: 'Studiya_28_48_2d.png',   file3d: 'Studiya_28_48_3d.png' },
+        { type: 'Студия',  area: 29.27, view: 'горы',  file: 'Studiya_29_27_2d.png',   file2d: 'Studiya_29_27_2d.png',   file3d: 'Studiya_29_27_3d.png' },
+        { type: 'Студия',  area: 29.27, view: 'горы',  file: 'Studiya_29_27_2d.png',   file2d: 'Studiya_29_27_2d.png',   file3d: 'Studiya_29_27_3d.png' },
+        { type: 'Студия',  area: 30.85, view: 'горы',  file: 'Studiya_30_85_2d.png',   file2d: 'Studiya_30_85_2d.png',   file3d: 'Studiya_30_85_3d.png' },
+        { type: '2-комн.', area: 60.73, view: 'горы',  file: 'Dvushka_60_73_2d.png',   file2d: 'Dvushka_60_73_2d.png',   file3d: 'Dvushka_60_73_3d.png' },
+        { type: 'Студия',  area: 26.50, view: 'нет',   file: 'Studiya_26_50_2d.png',   file2d: 'Studiya_26_50_2d.png',   file3d: 'Studiya_26_50_3d.png' },
+        { type: 'Студия',  area: 30.21, view: 'нет',   file: 'Studiya_30_21_2d.png',   file2d: 'Studiya_30_21_2d.png',   file3d: 'Studiya_30_21_3d.png' },
+        { type: 'Студия',  area: 30.21, view: 'нет',   file: 'Studiya_30_21_2d.png',   file2d: 'Studiya_30_21_2d.png',   file3d: 'Studiya_30_21_3d.png' },
+        { type: '1-комн.', area: 48.10, view: 'нет',   file: 'Odnushka_48_10_2d.png',  file2d: 'Odnushka_48_10_2d.png',  file3d: 'Odnushka_48_10_3d.png' },
+        { type: 'Студия',  area: 28.29, view: 'двор',  file: 'Studiya_28_29_2d.png',   file2d: 'Studiya_28_29_2d.png',   file3d: 'Studiya_28_29_3d.png' }
+      ]
+    };
+
+    let currentFolder = (currentBlock in BLOCK_FOLDER_MAP) ? BLOCK_FOLDER_MAP[currentBlock] : 'b1';
+    let apartments = [];
+    let activeFilter = 'all';
+    let selectedApartment = null;
+    let selectedCalculation = null;
+
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSubtitle = document.getElementById('pageSubtitle');
+    const planTitle = document.getElementById('planTitle');
+    const planSubtitle = document.getElementById('planSubtitle');
+    const placeholderNumber = document.getElementById('placeholderNumber');
+    const placeholderTitle = document.getElementById('placeholderTitle');
+    const placeholderText = document.getElementById('placeholderText');
+    const planImage = document.getElementById('planImage');
+    const planImageFrame = document.getElementById('planImageFrame');
+    const planPlaceholder = document.getElementById('planPlaceholder');
+    const apartmentsList = document.getElementById('apartmentsList');
+    const emptyList = document.getElementById('emptyList');
+    const requestApartment = document.getElementById('requestApartment');
+    const folderInfo = document.getElementById('folderInfo');
+
+    const selectedApartmentPanel = document.getElementById('selectedApartmentPanel');
+    const selectedApartmentTitle = document.getElementById('selectedApartmentTitle');
+    const selectedApartmentText = document.getElementById('selectedApartmentText');
+    const selectedType = document.getElementById('selectedType');
+    const selectedArea = document.getElementById('selectedArea');
+    const selectedView = document.getElementById('selectedView');
+
+    const calculatorBox = document.getElementById('calculatorBox');
+    const pvRange = document.getElementById('pvRange');
+    const pvInput = document.getElementById('pvInput');
+    const monthsRange = document.getElementById('monthsRange');
+    const pvPercent = document.getElementById('pvPercent');
+    const pvRubles = document.getElementById('pvRubles');
+    const monthsValue = document.getElementById('monthsValue');
+    const pricePerM2 = document.getElementById('pricePerM2');
+    const fullPrice = document.getElementById('fullPrice');
+    const remainingPrice = document.getElementById('remainingPrice');
+    const monthlyPay = document.getElementById('monthlyPay');
+    const priceRule = document.getElementById('priceRule');
+    const viewToggle = document.getElementById('viewToggle');
+    const btn2d = document.getElementById('btn2d');
+    const btn3d = document.getElementById('btn3d');
+
+    let currentView = '2d';
+
+    function setView(view) {
+      if (!selectedApartment) return;
+      currentView = view;
+      btn2d.classList.toggle('tool-btn--active', view === '2d');
+      btn3d.classList.toggle('tool-btn--active', view === '3d');
+      const file = view === '3d' && selectedApartment.file3d ? selectedApartment.file3d : selectedApartment.file2d || selectedApartment.file;
+      planImage.src = `plans/${currentFolder}/${file}`;
+    }
+
+    function initPage() {
+      pageTitle.textContent = `Блок ${currentBlock}`;
+      placeholderNumber.textContent = currentBlock;
+
+      const switcherLabel = document.getElementById('blockSwitcherLabel');
+      if (switcherLabel) {
+        switcherLabel.textContent = BLOCK_GROUP_LABEL[currentFolder] || `Блок ${currentBlock}`;
+      }
+
+      if (currentFolder === null) {
+        pageSubtitle.textContent = `Планировки для этого блока уточняются.`;
+        planTitle.textContent = `Блок ${currentBlock}`;
+        planSubtitle.textContent = `Планировки уточняются`;
+        folderInfo.textContent = `Блок ${currentBlock} · планировки уточняются`;
+        placeholderTitle.textContent = 'Планировки уточняются';
+        placeholderText.textContent = 'Для этого блока планировки ещё не добавлены. Свяжитесь с менеджером — он ответит на все вопросы.';
+        planImageFrame.style.display = 'none';
+        planPlaceholder.classList.add('visible');
+        apartments = [];
+        renderApartments();
+        return;
+      }
+
+      const groupLabel = BLOCK_GROUP_LABEL[currentFolder] || `Блок ${currentBlock}`;
+      pageSubtitle.textContent = `${groupLabel} · выберите квартиру и посмотрите планировку.`;
+      planTitle.textContent = `Планировки · ${groupLabel}`;
+      planSubtitle.textContent = groupLabel;
+      folderInfo.textContent = groupLabel;
+
+      createApartmentsForBlock();
+      syncFilterVisibility();
+      renderApartments();
+      fillRequestSelect();
+      setInitialPlan();
+      updateDragMode();
+    }
+
+    const VIEW_LABELS = {
+      'двор':      'Вид во двор',
+      'горы':      'Вид в сторону гор',
+      'море':      'Вид в сторону моря',
+      'море+горы': 'Вид в сторону моря и гор',
+      'нет':       'Вид не указан'
+    };
+    const VIEW_ICONS = {
+      'двор':      '🏠',
+      'горы':      '🏔',
+      'море':      '🌊',
+      'море+горы': '🌊',
+      'нет':       '—'
+    };
+
+    function createApartmentsForBlock() {
+      const base = APARTMENTS_BY_FOLDER[currentFolder] || [];
+
+      apartments = base.map((apt, index) => {
+        const view = apt.view || 'нет';
+        const hasSeaView = view === 'море' || view === 'море+горы';
+
+        return {
+          ...apt,
+          id: `${currentBlock}-${index + 1}`,
+          block: currentBlock,
+          folder: currentFolder,
+          image: `plans/${currentFolder}/${apt.file}`,
+          hasSeaView,
+          viewLabel: VIEW_LABELS[view] || 'Вид не указан',
+          viewIcon:  VIEW_ICONS[view]  || '—'
+        };
+      });
+    }
+
+    function setInitialPlan() {
+      if (apartments.length) {
+        setPlanImage(apartments[0]);
+        showSelectedApartment(apartments[0].id, false);
+      } else {
+        planImageFrame.style.display = 'none';
+        planPlaceholder.classList.add('visible');
+      }
+    }
+
+    function setPlanImage(apt) {
+      selectedApartment = apt;
+
+      const has3d = Boolean(apt.file3d);
+      viewToggle.classList.toggle('visible', has3d);
+      if (has3d) {
+        currentView = '2d';
+        btn2d.classList.add('tool-btn--active');
+        btn3d.classList.remove('tool-btn--active');
+      }
+
+      planImage.onload = () => {
+        planImageFrame.style.display = 'flex';
+        planPlaceholder.classList.remove('visible');
+      };
+
+      planImage.onerror = () => {
+        planImageFrame.style.display = 'none';
+        planPlaceholder.classList.add('visible');
+        placeholderTitle.textContent = 'Картинка не найдена';
+        placeholderText.textContent = `Проверь файл: ${apt.image}`;
+      };
+
+      planImage.src = apt.image;
+      planImage.alt = `${apt.type} ${apt.area} м²`;
+
+      resetZoom();
+    }
+
+    function showSelectedApartment(id, shouldScroll = true) {
+      selectedApartment = apartments.find(apt => apt.id === id);
+
+      if (!selectedApartment) return;
+
+      selectedCalculation = null;
+      calculatorBox.classList.remove('visible');
+
+      selectedApartmentPanel.classList.add('visible');
+
+      selectedApartmentTitle.textContent = `${selectedApartment.type} ${selectedApartment.area} м²`;
+      selectedApartmentText.textContent = `Блок ${currentBlock} · ${selectedApartment.viewLabel}`;
+      selectedType.textContent = selectedApartment.type;
+      selectedArea.textContent = `${selectedApartment.area} м²`;
+      selectedView.textContent = selectedApartment.viewLabel;
+
+      requestApartment.value = `Блок ${currentBlock}, ${selectedApartment.type}, ${selectedApartment.area} м², ${selectedApartment.viewLabel}`;
+
+      document.querySelectorAll('.apartment-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.id === id);
+      });
+
+      updateDots(id);
+
+      if (shouldScroll) {
+        document.querySelector('.plan-card').scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }
+
+    function formatRub(value) {
+      return new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
+    }
+
+    function getPricePerM2(pvPercent, hasSeaView) {
+      let pricePerM2 = 0;
+      let rule = '';
+
+      if (pvPercent === 100) {
+        pricePerM2 = 75000;
+        rule = 'Полная оплата';
+      } else if (pvPercent >= 30) {
+        pricePerM2 = 85000;
+        rule = 'ПВ от 30%';
+      } else {
+        pricePerM2 = 90000;
+        rule = 'ПВ меньше 30%';
+      }
+
+      if (hasSeaView) {
+        pricePerM2 += 5000;
+        rule += ' + вид на море';
+      }
+
+      return { pricePerM2, rule };
+    }
+
+    function calculateApartment(apt, pvPercent = 30, months = 48) {
+      const data = getPricePerM2(pvPercent, apt.hasSeaView);
+      const fullPrice = Math.round(apt.area * data.pricePerM2);
+
+      let realPvPercent = pvPercent;
+      const minPercent = Math.ceil((MIN_DOWN_PAYMENT_RUB / fullPrice) * 100);
+
+      if (realPvPercent < minPercent) {
+        realPvPercent = minPercent;
+      }
+
+      const pvRubles = Math.round(fullPrice * (realPvPercent / 100));
+      const remaining = fullPrice - pvRubles;
+      const monthly = months > 0 ? Math.round(remaining / months) : remaining;
+
+      return {
+        ...data,
+        fullPrice,
+        pvRubles,
+        remaining,
+        monthly,
+        pvPercent: realPvPercent,
+        months,
+        minPercent
+      };
+    }
+
+    function renderApartments() {
+      const filtered = activeFilter === 'all'
+        ? apartments
+        : apartments.filter(apt => apt.type === activeFilter);
+
+      apartmentsList.innerHTML = '';
+
+      if (!filtered.length) {
+        emptyList.classList.add('visible');
+        return;
+      }
+
+      emptyList.classList.remove('visible');
+
+      filtered.forEach((apt) => {
+        const calcRaw = calculateApartment(apt, 30, 48);
+        const cardMonths = Math.max(1, Math.min(48, Math.floor(calcRaw.remaining / MIN_MONTHLY)));
+        const calc = calculateApartment(apt, 30, cardMonths);
+
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'apartment-card';
+        card.dataset.id = apt.id;
+
+        card.onclick = () => {
+          setPlanImage(apt);
+          showSelectedApartment(apt.id, true);
+        };
+
+        card.innerHTML = `
+          <div class="apartment-top">
+            <div>
+              <div class="apartment-name">${apt.type} ${apt.area} м²</div>
+              <div class="view-tag">${apt.viewIcon} ${apt.viewLabel}</div>
+            </div>
+            <div class="apartment-tag">${apt.type}</div>
+          </div>
+
+          <div class="apartment-grid">
+            <div class="apartment-param">
+              <small>Площадь</small>
+              <strong>${apt.area} м²</strong>
+            </div>
+
+            <div class="apartment-param">
+              <small>Окна</small>
+              <strong>Панорамные</strong>
+            </div>
+
+            <div class="apartment-param">
+              <small>От</small>
+              <strong>${formatRub(calc.fullPrice)}</strong>
+            </div>
+
+            <div class="apartment-param">
+              <small>Платёж</small>
+              <strong>${formatRub(calc.monthly)}/мес</strong>
+            </div>
+          </div>
+        `;
+
+        apartmentsList.appendChild(card);
+      });
+
+      if (selectedApartment) {
+        document.querySelectorAll('.apartment-card').forEach(card => {
+          card.classList.toggle('active', card.dataset.id === selectedApartment.id);
+        });
+      }
+
+      renderDots(filtered);
+      setupSwiperScroll();
+    }
+
+    function fillRequestSelect() {
+      requestApartment.innerHTML = '<option value="">Интересующая квартира</option>';
+
+      apartments.forEach((apt) => {
+        const option = document.createElement('option');
+        option.value = `Блок ${currentBlock}, ${apt.type}, ${apt.area} м², ${apt.viewLabel}`;
+        option.textContent = `Блок ${currentBlock} · ${apt.type} · ${apt.area} м² · ${apt.viewLabel}`;
+        requestApartment.appendChild(option);
+      });
+    }
+
+    function syncFilterVisibility() {
+      const types = new Set(apartments.map(a => a.type));
+      document.querySelectorAll('.filter-btn[data-type]').forEach(btn => {
+        const t = btn.dataset.type;
+        if (t === 'all') return;
+        btn.style.display = types.has(t) ? '' : 'none';
+      });
+      // Reset active filter to 'all' to avoid stale state
+      activeFilter = 'all';
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      const allBtn = document.querySelector('.filter-btn[data-type="all"]');
+      if (allBtn) allBtn.classList.add('active');
+    }
+
+    function setFilter(filter, button) {
+      activeFilter = filter;
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      button.classList.add('active');
+      renderApartments();
+
+      if (isMobile()) {
+        requestAnimationFrame(() => { apartmentsList.scrollLeft = 0; });
+      }
+    }
+
+    const planStage = document.getElementById('planStage');
+    const planTransform = document.getElementById('planTransform');
+
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let startTranslateX = 0;
+    let startTranslateY = 0;
+
+    function updateDragMode() {
+      if (scale > 1.01) {
+        planStage.classList.add('can-drag');
+      } else {
+        planStage.classList.remove('can-drag');
+      }
+    }
+
+    function updateTransform() {
+      planTransform.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      updateDragMode();
+    }
+
+    function zoomIn() {
+      scale = Math.min(3.2, scale + 0.18);
+      updateTransform();
+    }
+
+    function zoomOut() {
+      scale = Math.max(0.75, scale - 0.18);
+
+      if (scale <= 1.01) {
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+      }
+
+      updateTransform();
+    }
+
+    function resetZoom() {
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
+      updateTransform();
+    }
+
+    planStage.addEventListener('wheel', (event) => {
+      event.stopPropagation();
+    }, { passive: true });
+
+    planStage.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'touch' && scale <= 1.01) {
+        return;
+      }
+
+      isDragging = true;
+      planStage.classList.add('dragging');
+      dragStartX = event.clientX;
+      dragStartY = event.clientY;
+      startTranslateX = translateX;
+      startTranslateY = translateY;
+
+      if (event.cancelable && (event.pointerType !== 'touch' || scale > 1.01)) {
+        event.preventDefault();
+      }
+
+      planStage.setPointerCapture(event.pointerId);
+    });
+
+    planStage.addEventListener('pointermove', (event) => {
+      if (!isDragging) return;
+
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+
+      translateX = startTranslateX + (event.clientX - dragStartX);
+      translateY = startTranslateY + (event.clientY - dragStartY);
+      updateTransform();
+    });
+
+    planStage.addEventListener('pointerup', (event) => {
+      isDragging = false;
+      planStage.classList.remove('dragging');
+
+      try {
+        planStage.releasePointerCapture(event.pointerId);
+      } catch (error) {}
+    });
+
+    planStage.addEventListener('pointercancel', () => {
+      isDragging = false;
+      planStage.classList.remove('dragging');
+    });
+
+    function showCalculator() {
+      if (!selectedApartment) return;
+
+      calculatorBox.classList.add('visible');
+
+      // Вычисляем минимальный % ПВ исходя из 300 000 ₽ и фиксируем min слайдера
+      const tmpCalc = calculateApartment(selectedApartment, 0, 48);
+      pvRange.min = tmpCalc.minPercent;
+      pvRange.value = Math.max(30, tmpCalc.minPercent);
+      monthsRange.min = 1;
+      monthsRange.max = 48;
+      monthsRange.value = 48;
+
+      updateCalculator();
+
+      setTimeout(() => {
+        calculatorBox.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }, 80);
+    }
+
+    function updateCalculator() {
+      if (!selectedApartment) return;
+
+      let pv = parseInt(pvRange.value, 10);
+      let months = parseInt(monthsRange.value, 10);
+
+      let calc = calculateApartment(selectedApartment, pv, months);
+
+      // Enforce PV minimum (300 000 ₽)
+      if (pv < calc.minPercent) {
+        pv = calc.minPercent;
+        pvRange.value = pv;
+        calc = calculateApartment(selectedApartment, pv, months);
+      }
+
+      // Enforce monthly minimum (40 000 ₽) — ограничиваем срок сверху
+      if (calc.remaining > 0) {
+        const maxMonths = Math.max(1, Math.min(48, Math.floor(calc.remaining / MIN_MONTHLY)));
+        if (months > maxMonths) {
+          months = maxMonths;
+          monthsRange.value = months;
+          calc = calculateApartment(selectedApartment, pv, months);
+        }
+        monthsRange.max = maxMonths;
+      } else {
+        monthsRange.max = 48;
+      }
+
+      pvRange.min = calc.minPercent;
+      selectedCalculation = calc;
+
+      pvPercent.textContent = calc.pvPercent + '%';
+      if (pvRubles) pvRubles.textContent = formatRub(calc.pvRubles);
+      monthsValue.textContent = calc.months + ' месяцев';
+      pricePerM2.textContent = formatRub(calc.pricePerM2) + '/м²';
+      fullPrice.textContent = formatRub(calc.fullPrice);
+      remainingPrice.textContent = formatRub(calc.remaining);
+      monthlyPay.textContent = formatRub(calc.monthly) + '/мес';
+      priceRule.textContent = calc.rule;
+
+      // Синхронизируем поле ввода рублей, если пользователь его не редактирует
+      if (document.activeElement !== pvInput) {
+        pvInput.value = calc.pvRubles;
+      }
+    }
+
+    function onPvManualInput() {
+      if (!selectedApartment) return;
+
+      const raw = parseInt(pvInput.value, 10);
+      if (isNaN(raw)) return;
+
+      // Определяем % из суммы в рублях
+      const basePrice = selectedCalculation
+        ? selectedCalculation.fullPrice
+        : Math.round(selectedApartment.area * (85000 + (selectedApartment.hasSeaView ? 5000 : 0)));
+
+      let pct = Math.round((raw / basePrice) * 100);
+      pct = Math.max(0, Math.min(100, pct));
+      pvRange.value = Math.max(pvRange.min || 0, pct);
+
+      updateCalculator();
+    }
+
+    function onPvInputBlur() {
+      if (!selectedApartment) return;
+
+      const val = parseInt(pvInput.value, 10);
+      if (isNaN(val) || val < MIN_DOWN_PAYMENT_RUB) {
+        pvRange.value = pvRange.min;
+      }
+      updateCalculator();
+    }
+
+    function openRequestModalFromApartment() {
+      if (selectedApartment) {
+        requestApartment.value = `Блок ${currentBlock}, ${selectedApartment.type}, ${selectedApartment.area} м², ${selectedApartment.viewLabel}`;
+      }
+
+      openRequestModal();
+    }
+
+    function sendApartmentWhatsApp() {
+      if (!selectedApartment) return;
+
+      let calcText = '';
+
+      if (selectedCalculation && calculatorBox.classList.contains('visible')) {
+        calcText =
+          `%0AРасчёт:%0A` +
+          `Цена за м²: ${encodeURIComponent(formatRub(selectedCalculation.pricePerM2))}%0A` +
+          `Стоимость: ${encodeURIComponent(formatRub(selectedCalculation.fullPrice))}%0A` +
+          `ПВ: ${selectedCalculation.pvPercent}%25 — ${encodeURIComponent(formatRub(selectedCalculation.pvRubles))}%0A` +
+          `Срок: ${selectedCalculation.months} мес.%0A` +
+          `Платёж: ${encodeURIComponent(formatRub(selectedCalculation.monthly))}/мес%0A`;
+      }
+
+      const text =
+        `Здравствуйте! Интересует квартира в ЖК «Каспий».%0A%0A` +
+        `Блок: ${currentBlock}%0A` +
+        `Тип: ${encodeURIComponent(selectedApartment.type)}%0A` +
+        `Площадь: ${selectedApartment.area} м²%0A` +
+        `Вид: ${encodeURIComponent(selectedApartment.viewLabel)}%0A` +
+        `Панорамные окна: да%0A` +
+        `${calcText}%0A` +
+        `Прошу связаться со мной.`;
+
+      window.open(`https://wa.me/${PHONE}?text=${text}`, '_blank');
+    }
+
+    const requestModal = document.getElementById('requestModal');
+
+    function openRequestModal() {
+      requestModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      requestAnimationFrame(() => {
+        requestModal.classList.add('visible');
+      });
+    }
+
+    function closeRequestModal() {
+      requestModal.classList.remove('visible');
+
+      setTimeout(() => {
+        requestModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }, 300);
+    }
+
+    function closeRequestModalByBg(event) {
+      if (event.target === requestModal) {
+        closeRequestModal();
+      }
+    }
+
+    function sendRequest(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('requestName').value.trim();
+      const phone = document.getElementById('requestPhone').value.trim();
+      const apartment = requestApartment.value.trim();
+
+      let calcText = '';
+
+      if (selectedApartment && selectedCalculation && calculatorBox.classList.contains('visible')) {
+        calcText =
+          `%0AРасчёт:%0A` +
+          `Цена за м²: ${encodeURIComponent(formatRub(selectedCalculation.pricePerM2))}%0A` +
+          `Стоимость: ${encodeURIComponent(formatRub(selectedCalculation.fullPrice))}%0A` +
+          `ПВ: ${selectedCalculation.pvPercent}%25 — ${encodeURIComponent(formatRub(selectedCalculation.pvRubles))}%0A` +
+          `Срок: ${selectedCalculation.months} мес.%0A` +
+          `Платёж: ${encodeURIComponent(formatRub(selectedCalculation.monthly))}/мес%0A`;
+      }
+
+      const message =
+        `Здравствуйте! Хочу оставить заявку по ЖК «Каспий».%0A%0A` +
+        `Имя: ${encodeURIComponent(name)}%0A` +
+        `Телефон: ${encodeURIComponent(phone)}%0A` +
+        `Блок: ${currentBlock}%0A` +
+        `${apartment ? `Квартира: ${encodeURIComponent(apartment)}%0A` : ''}` +
+        `${calcText}%0A` +
+        `Прошу связаться со мной.`;
+
+      window.open(`https://wa.me/${PHONE}?text=${message}`, '_blank');
+
+      closeRequestModal();
+
+      document.getElementById('requestName').value = '';
+      document.getElementById('requestPhone').value = '';
+    }
+
+    const topNav = document.getElementById('topNav');
+    const mobileNav = document.getElementById('mobileNav');
+
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    function handleNavScroll() {
+      const currentY = window.scrollY;
+      const diff = currentY - lastScrollY;
+
+      if (currentY <= 30) {
+        topNav.classList.remove('nav-hidden');
+        mobileNav.classList.remove('mobile-nav-hidden');
+        lastScrollY = currentY;
+        ticking = false;
+        return;
+      }
+
+      if (Math.abs(diff) < 4) {
+        ticking = false;
+        return;
+      }
+
+      if (diff > 0) {
+        topNav.classList.add('nav-hidden');
+        mobileNav.classList.add('mobile-nav-hidden');
+      } else {
+        topNav.classList.remove('nav-hidden');
+        mobileNav.classList.remove('mobile-nav-hidden');
+      }
+
+      lastScrollY = currentY;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(handleNavScroll);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (requestModal.classList.contains('active')) closeRequestModal();
+      }
+
+      if (event.key === '+' || event.key === '=') {
+        zoomIn();
+      }
+
+      if (event.key === '-') {
+        zoomOut();
+      }
+
+      if (event.key.toLowerCase() === 'r') {
+        resetZoom();
+      }
+    });
+
+    /* ===== MOBILE SWIPER ===== */
+    function isMobile() {
+      return window.innerWidth <= 900;
+    }
+
+    let swiperReady = false;
+
+    function setupSwiperScroll() {
+      if (!isMobile() || swiperReady) return;
+      swiperReady = true;
+
+      let scrollTimer;
+      apartmentsList.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(selectCenteredCard, 80);
+      }, { passive: true });
+    }
+
+    function selectCenteredCard() {
+      if (!isMobile()) return;
+      const mid = apartmentsList.scrollLeft + apartmentsList.offsetWidth / 2;
+      let best = null, minDist = Infinity;
+      document.querySelectorAll('.apartment-card').forEach(card => {
+        const dist = Math.abs(card.offsetLeft + card.offsetWidth / 2 - mid);
+        if (dist < minDist) { minDist = dist; best = card; }
+      });
+      if (!best) return;
+      const id = best.dataset.id;
+      const apt = apartments.find(a => a.id === id);
+      if (!apt) return;
+      if (!selectedApartment || apt.id !== selectedApartment.id) {
+        setPlanImage(apt);
+        showSelectedApartment(apt.id, false);
+      }
+      updateDots(id);
+    }
+
+    function renderDots(filtered) {
+      const dotsRow = document.getElementById('aptDotsRow');
+      if (!dotsRow) return;
+      dotsRow.innerHTML = '';
+      if (!isMobile() || filtered.length <= 1) return;
+
+      filtered.forEach(apt => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'apt-dot' + (selectedApartment && apt.id === selectedApartment.id ? ' active' : '');
+        dot.dataset.id = apt.id;
+        dot.setAttribute('aria-label', `${apt.type} ${apt.area} м²`);
+        dot.onclick = () => {
+          const card = document.querySelector(`.apartment-card[data-id="${apt.id}"]`);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+        };
+        dotsRow.appendChild(dot);
+      });
+    }
+
+    function updateDots(activeId) {
+      document.querySelectorAll('.apt-dot').forEach(dot => {
+        dot.classList.toggle('active', dot.dataset.id === activeId);
+      });
+    }
+
+    initPage();
+  </script>
+</body>
+</html>
