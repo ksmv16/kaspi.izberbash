@@ -862,6 +862,10 @@
       gap: 10px;
     }
 
+    .apt-param-full {
+      grid-column: 1 / -1;
+    }
+
     .apartment-param {
       padding: 10px;
       border-radius: 16px;
@@ -2283,30 +2287,23 @@
           <div class="apartment-top">
             <div>
               <div class="apartment-name">${apt.type} ${apt.area} м²</div>
-              <div class="view-tag">${apt.viewIcon} ${apt.viewLabel}</div>
             </div>
-            <div class="apartment-tag">${apt.type}</div>
           </div>
 
           <div class="apartment-grid">
             <div class="apartment-param">
-              <small>Площадь</small>
-              <strong>${apt.area} м²</strong>
-            </div>
-
-            <div class="apartment-param">
-              <small>Окна</small>
-              <strong>Панорамные</strong>
-            </div>
-
-            <div class="apartment-param">
-              <small>От</small>
-              <strong>${formatRub(calc.fullPrice)}</strong>
-            </div>
-
-            <div class="apartment-param">
               <small>Платёж</small>
               <strong>${formatRub(calc.monthly)}/мес</strong>
+            </div>
+
+            <div class="apartment-param">
+              <small>Вид</small>
+              <strong>${apt.viewIcon} ${apt.viewLabel.replace('Вид ', '')}</strong>
+            </div>
+
+            <div class="apartment-param apt-param-full">
+              <small>От</small>
+              <strong>${formatRub(calc.fullPrice)}</strong>
             </div>
           </div>
         `;
