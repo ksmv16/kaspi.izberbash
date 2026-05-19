@@ -385,6 +385,35 @@
       cursor: grabbing;
     }
 
+    .plan-nav-btn {
+      display: flex;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      background: rgba(10,18,32,0.72);
+      border: 1px solid rgba(200,170,110,0.35);
+      color: #e8d9c2;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .plan-nav-btn:hover {
+      background: rgba(200,170,110,0.22);
+      border-color: rgba(200,170,110,0.7);
+    }
+
+    .plan-nav-btn.prev { left: 14px; }
+    .plan-nav-btn.next { right: 14px; }
+
     .plan-transform {
       position: absolute;
       inset: 0;
@@ -1253,56 +1282,122 @@
       .layout {
         display: flex !important;
         flex-direction: column !important;
+        align-items: stretch !important;
       }
 
       .apartments-panel {
         order: -1;
-        overflow: visible !important;
       }
 
-      /* ── Horizontal swipe carousel ── */
-      .apartments-list {
-        flex-direction: row !important;
-        overflow-x: auto !important;
-        overflow-y: visible !important;
-        scroll-snap-type: x mandatory !important;
+      /* ── Filters: horizontal scroll ── */
+      .filters {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
-        padding: 10px 18px 14px !important;
-        gap: 12px !important;
-        scrollbar-width: none !important;
-        max-height: none !important;
-        cursor: default !important;
-        align-items: stretch;
+        padding: 8px 12px;
+        gap: 6px;
       }
 
-      .apartments-list::-webkit-scrollbar { display: none; }
+      .filters::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* ── Horizontal scroll list ── */
+      .apartments-list {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: scroll !important;
+        overflow-y: hidden !important;
+        padding: 10px 12px 12px !important;
+        gap: 10px !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        max-height: none !important;
+        min-height: 0 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .apartments-list::-webkit-scrollbar {
+        display: none;
+      }
 
       .apartment-card {
-        flex: 0 0 82vw !important;
-        scroll-snap-align: start;
-        min-width: 0;
-        max-width: 380px;
+        display: flex !important;
+        flex: 0 0 78vw !important;
+        max-width: 300px !important;
+        width: auto !important;
+        flex-direction: column !important;
         transform: none !important;
         box-shadow: none;
+        touch-action: pan-x;
       }
 
       .apartment-card:hover {
         transform: none !important;
       }
 
-      /* ── Dots ── */
+      /* ── Dots row hidden — native scroll handles navigation ── */
       .apt-dots-row {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 16px 10px;
+        display: none !important;
       }
 
-      /* ── Smaller plan viewer ── */
+      /* ── Hero hidden on mobile — info is in panel-head ── */
+      .hero {
+        display: none !important;
+      }
+
+      /* ── Compact cards for horizontal scroll ── */
+      .apartment-card {
+        padding: 12px !important;
+      }
+
+      .view-tag {
+        display: none !important;
+      }
+
+      .apartment-name {
+        font-size: 14px !important;
+      }
+
+      .apartment-tag {
+        font-size: 11px !important;
+        padding: 5px 8px !important;
+      }
+
+      .apartment-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+      }
+
+      .apartment-grid .apartment-param:nth-child(2),
+      .apartment-grid .apartment-param:nth-child(4) {
+        display: none !important;
+      }
+
+      .apartment-param {
+        padding: 7px 8px !important;
+        border-radius: 12px !important;
+      }
+
+      .apartment-param small {
+        font-size: 9px !important;
+        margin-bottom: 3px !important;
+      }
+
+      .apartment-param strong {
+        font-size: 12px !important;
+      }
+
+      /* ── Plan viewer fills remaining screen ── */
       .plan-stage {
-        height: 40vh !important;
-        min-height: 190px !important;
+        height: calc(100vh - 480px) !important;
+        min-height: 220px !important;
+      }
+
+      .plan-nav-btn {
+        display: none !important;
       }
     }
 
@@ -1345,13 +1440,8 @@
       }
 
       .plan-stage {
-        height: 36vh !important;
-        min-height: 170px !important;
-      }
-
-      .apartment-card {
-        flex: 0 0 86vw !important;
-        max-width: none !important;
+        height: 50vh !important;
+        min-height: 230px !important;
       }
 
       .plan-card,
@@ -1550,6 +1640,8 @@
         </div>
 
         <div id="planStage" class="plan-stage">
+          <button class="plan-nav-btn prev" type="button" onclick="navigateApt(-1)" aria-label="Предыдущая квартира">&#8249;</button>
+          <button class="plan-nav-btn next" type="button" onclick="navigateApt(1)" aria-label="Следующая квартира">&#8250;</button>
           <div id="planTransform" class="plan-transform">
             <div id="planImageFrame" class="plan-image-frame">
               <img id="planImage" class="plan-image" src="" alt="Планировка квартиры" draggable="false">
@@ -2142,10 +2234,26 @@
       };
     }
 
+    let currentFiltered = [];
+
+    function navigateApt(dir) {
+      if (!currentFiltered.length) return;
+      const idx = selectedApartment ? currentFiltered.findIndex(a => a.id === selectedApartment.id) : -1;
+      let next = idx + dir;
+      if (next < 0) next = currentFiltered.length - 1;
+      if (next >= currentFiltered.length) next = 0;
+      const apt = currentFiltered[next];
+      setPlanImage(apt);
+      showSelectedApartment(apt.id, false);
+      const card = document.querySelector(`.apartment-card[data-id="${apt.id}"]`);
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+
     function renderApartments() {
       const filtered = activeFilter === 'all'
         ? apartments
         : apartments.filter(apt => apt.type === activeFilter);
+      currentFiltered = filtered;
 
       apartmentsList.innerHTML = '';
 
@@ -2206,14 +2314,22 @@
         apartmentsList.appendChild(card);
       });
 
-      if (selectedApartment) {
-        document.querySelectorAll('.apartment-card').forEach(card => {
-          card.classList.toggle('active', card.dataset.id === selectedApartment.id);
-        });
-      }
-
       renderDots(filtered);
-      setupSwiperScroll();
+
+      if (isMobile()) {
+        carouselIndex = 0;
+        if (selectedApartment) {
+          const idx = filtered.findIndex(a => a.id === selectedApartment.id);
+          if (idx >= 0) carouselIndex = idx;
+        }
+        showCarouselCard(carouselIndex);
+      } else {
+        if (selectedApartment) {
+          document.querySelectorAll('.apartment-card').forEach(card => {
+            card.classList.toggle('active', card.dataset.id === selectedApartment.id);
+          });
+        }
+      }
     }
 
     function fillRequestSelect() {
@@ -2249,11 +2365,9 @@
       });
 
       button.classList.add('active');
+      carouselIndex = 0;
+      carouselReady = false;
       renderApartments();
-
-      if (isMobile()) {
-        requestAnimationFrame(() => { apartmentsList.scrollLeft = 0; });
-      }
     }
 
     const planStage = document.getElementById('planStage');
@@ -2596,6 +2710,9 @@
         if (requestModal.classList.contains('active')) closeRequestModal();
       }
 
+      if (event.key === 'ArrowLeft') navigateApt(-1);
+      if (event.key === 'ArrowRight') navigateApt(1);
+
       if (event.key === '+' || event.key === '=') {
         zoomIn();
       }
@@ -2609,67 +2726,131 @@
       }
     });
 
-    /* ===== MOBILE SWIPER ===== */
+    /* ===== MOBILE CAROUSEL ===== */
     function isMobile() {
       return window.innerWidth <= 900;
     }
 
-    let swiperReady = false;
+    let carouselIndex = 0;
+    let carouselReady = false;
+    let carouselSwipeStartX = 0, carouselSwipeStartY = 0;
 
-    function setupSwiperScroll() {
-      if (!isMobile() || swiperReady) return;
-      swiperReady = true;
+    function setupCarousel() {
+      if (!isMobile() || carouselReady) return;
+      carouselReady = true;
 
-      let scrollTimer;
-      apartmentsList.addEventListener('scroll', () => {
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(selectCenteredCard, 80);
+      let startX = 0, startY = 0, startScroll = 0, intent = null;
+
+      apartmentsList.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        startScroll = apartmentsList.scrollLeft;
+        intent = null;
+      }, { passive: true });
+
+      apartmentsList.addEventListener('touchmove', (e) => {
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+        if (intent === null) intent = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (intent === 'x') {
+          if (e.cancelable) e.preventDefault();
+          apartmentsList.scrollLeft = startScroll - dx;
+        }
+      }, { passive: false });
+
+      apartmentsList.addEventListener('touchend', () => {
+        if (intent !== 'x') return;
+        const card = apartmentsList.querySelector('.apartment-card');
+        if (!card) return;
+        const step = card.offsetWidth + 10;
+        const idx = Math.max(0, Math.min(
+          currentFiltered.length - 1,
+          Math.round(apartmentsList.scrollLeft / step)
+        ));
+        apartmentsList.scrollTo({ left: idx * step, behavior: 'smooth' });
+        const apt = currentFiltered[idx];
+        if (apt) {
+          carouselIndex = idx;
+          document.querySelectorAll('.apartment-card').forEach(c => c.classList.remove('carousel-active'));
+          const activeCard = apartmentsList.querySelector(`[data-id="${apt.id}"]`);
+          if (activeCard) activeCard.classList.add('carousel-active');
+          setPlanImage(apt);
+          showSelectedApartment(apt.id, false);
+          updateCarouselNav();
+        }
       }, { passive: true });
     }
 
-    function selectCenteredCard() {
-      if (!isMobile()) return;
-      const mid = apartmentsList.scrollLeft + apartmentsList.offsetWidth / 2;
-      let best = null, minDist = Infinity;
-      document.querySelectorAll('.apartment-card').forEach(card => {
-        const dist = Math.abs(card.offsetLeft + card.offsetWidth / 2 - mid);
-        if (dist < minDist) { minDist = dist; best = card; }
-      });
-      if (!best) return;
-      const id = best.dataset.id;
-      const apt = apartments.find(a => a.id === id);
+    function stepCarousel(dir) {
+      const total = currentFiltered.length;
+      if (!total) return;
+      carouselIndex = (carouselIndex + dir + total) % total;
+      showCarouselCard(carouselIndex);
+    }
+
+    function showCarouselCard(index) {
+      carouselIndex = index;
+      const apt = currentFiltered[index];
       if (!apt) return;
-      if (!selectedApartment || apt.id !== selectedApartment.id) {
-        setPlanImage(apt);
-        showSelectedApartment(apt.id, false);
+
+      document.querySelectorAll('.apartment-card').forEach(c => c.classList.remove('carousel-active'));
+      const card = document.querySelector(`.apartment-card[data-id="${apt.id}"]`);
+      if (card) {
+        card.classList.add('carousel-active');
+        if (isMobile()) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+        }
       }
-      updateDots(id);
+
+      setPlanImage(apt);
+      showSelectedApartment(apt.id, false);
+      updateCarouselNav();
     }
 
     function renderDots(filtered) {
       const dotsRow = document.getElementById('aptDotsRow');
       if (!dotsRow) return;
       dotsRow.innerHTML = '';
-      if (!isMobile() || filtered.length <= 1) return;
+      if (!isMobile()) return;
 
-      filtered.forEach(apt => {
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'apt-dot' + (selectedApartment && apt.id === selectedApartment.id ? ' active' : '');
-        dot.dataset.id = apt.id;
-        dot.setAttribute('aria-label', `${apt.type} ${apt.area} м²`);
-        dot.onclick = () => {
-          const card = document.querySelector(`.apartment-card[data-id="${apt.id}"]`);
-          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-        };
-        dotsRow.appendChild(dot);
-      });
+      const prevBtn = document.createElement('button');
+      prevBtn.type = 'button';
+      prevBtn.className = 'apt-carousel-btn';
+      prevBtn.innerHTML = '&#8249;';
+      prevBtn.setAttribute('aria-label', 'Предыдущая');
+      prevBtn.onclick = () => stepCarousel(-1);
+
+      const counter = document.createElement('span');
+      counter.className = 'apt-carousel-counter';
+      counter.id = 'aptCarouselCounter';
+      counter.textContent = `1 из ${filtered.length}`;
+
+      const nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.className = 'apt-carousel-btn';
+      nextBtn.innerHTML = '&#8250;';
+      nextBtn.setAttribute('aria-label', 'Следующая');
+      nextBtn.onclick = () => stepCarousel(1);
+
+      dotsRow.appendChild(prevBtn);
+      dotsRow.appendChild(counter);
+      dotsRow.appendChild(nextBtn);
+
+      setupCarousel();
+    }
+
+    function updateCarouselNav() {
+      const counter = document.getElementById('aptCarouselCounter');
+      if (counter) counter.textContent = `${carouselIndex + 1} из ${currentFiltered.length}`;
     }
 
     function updateDots(activeId) {
-      document.querySelectorAll('.apt-dot').forEach(dot => {
-        dot.classList.toggle('active', dot.dataset.id === activeId);
-      });
+      if (!isMobile()) return;
+      const idx = currentFiltered.findIndex(a => a.id === activeId);
+      if (idx >= 0) {
+        carouselIndex = idx;
+        updateCarouselNav();
+      }
     }
 
     initPage();
